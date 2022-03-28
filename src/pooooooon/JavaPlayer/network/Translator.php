@@ -366,7 +366,7 @@ class Translator
 							$pk->trData = UseItemTransactionData::new(
 								[],
 								UseItemTransactionData::ACTION_CLICK_BLOCK,
-								new BlockPosition($clickPos->getX(), $clickPos->getY(), $clickPos->getZ()),
+								BlockPosition::fromVector3($clickPos),
 								$frame->getFacing(),
 								$player->getPlayer()->getInventory()->getHeldItemIndex(),
 								ItemStackWrapper::legacy(TypeConverter::getInstance()->coreItemStackToNet($player->getPlayer()->getInventory()->getItemInHand())),
@@ -386,7 +386,7 @@ class Translator
 								$pk->trData = UseItemTransactionData::new(
 									[],
 									UseItemTransactionData::ACTION_BREAK_BLOCK,
-									new BlockPosition($clickPos->x, $clickPos->y, $clickPos->z),
+									BlockPosition::fromVector3($clickPos),
 									$frame->getFacing(),
 									$player->getPlayer()->getInventory()->getHeldItemIndex(),
 									ItemStackWrapper::legacy(TypeConverter::getInstance()->coreItemStackToNet($player->getPlayer()->getInventory()->getItemInHand())),
