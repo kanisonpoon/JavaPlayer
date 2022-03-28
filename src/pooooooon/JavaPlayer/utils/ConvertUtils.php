@@ -54,6 +54,7 @@ use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataFlags;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\network\mcpe\protocol\types\entity\MetadataProperty;
 use pocketmine\block\tile\Tile;
+use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\timings\TimingsHandler;
 use pocketmine\utils\Binary;
 use pocketmine\utils\BinaryStream;
@@ -524,17 +525,17 @@ class ConvertUtils
 	 * else convert item data opposite way.
 	 *
 	 * @param bool $isComputer
-	 * @param Item &$item
+	  * @param Item|ItemStack &$item
 	 * @phpstan-param Item $item
 	 */
-	public static function convertItemData(bool $isComputer, Item &$item): void
+	public static function convertItemData(bool $isComputer, &$item): void
 	{//TODO: change return item
-		self::$timingConvertItem->startTiming();
+		//self::$timingConvertItem->startTiming();
 
 		$itemId = $item->getId();
 		$itemDamage = $item->getMeta();
 		$itemCount = $item->getCount();
-		$itemNBT = clone $item->getNamedTag();
+		$itemNBT = clone $item->getNamedTag() ?? clone $item->getNbt();
 
 		switch ($itemId) {
 			case ItemIds::PUMPKIN:
