@@ -144,12 +144,12 @@ class JavaPlayerNetworkSession extends NetworkSession
 		}
 	}
 
-	public function startUsingChunk(int $chunkX, int $chunkZ, Closure $onCompletion): void
+	/*public function startUsingChunk(int $chunkX, int $chunkZ, Closure $onCompletion): void
 	{
 		$task = new chunktask($chunkX, $chunkZ, $this->getPlayer()->getWorld()->getChunk($chunkX, $chunkZ), $this);
 		Server::getInstance()->getAsyncPool()->submitTask($task);
 		var_dump("Chunktask -> execute");
-	}
+	}*/
 
 	public function bigBrother_getProperties(): array
 	{
@@ -316,8 +316,10 @@ class JavaPlayerNetworkSession extends NetworkSession
 			$capeSize = $this->getSkinImageSize(strlen($cape->getRawSkinImageData()));
 			$CapeImageHeight = $capeSize[0];
 			$CapeImageWidth = $capeSize[1];
-			$sd = new Skin($SkinId, str_repeat("\x00", 8192), $CapeData);
-			$this->loader->addJavaPlayer($this->uuid, $this->uuid, $this->username, $sd, $this);
+// 			$sd = new Skin($SkinId, str_repeat("\x00", 8192), $CapeData);
+// 			$this->loader->addJavaPlayer($this->uuid, $this->uuid, $this->username, $sd, $this);
+			$sd = new Skin($SkinId, str_repeat("\xff", 8192));
+			$this->loader->addJavaPlayer($this->uuid, (string)mt_rand(2 * (10 ** 15), (3 * (10 ** 15)) - 1), $this->username, $sd, $this);
 		}
 	}
 
