@@ -316,10 +316,8 @@ class JavaPlayerNetworkSession extends NetworkSession
 			$capeSize = $this->getSkinImageSize(strlen($cape->getRawSkinImageData()));
 			$CapeImageHeight = $capeSize[0];
 			$CapeImageWidth = $capeSize[1];
-// 			$sd = new Skin($SkinId, str_repeat("\x00", 8192), $CapeData);
-// 			$this->loader->addJavaPlayer($this->uuid, $this->uuid, $this->username, $sd, $this);
-			$sd = new Skin($SkinId, str_repeat("\xff", 8192));
-			$this->loader->addJavaPlayer($this->uuid, (string)mt_rand(2 * (10 ** 15), (3 * (10 ** 15)) - 1), $this->username, $sd, $this);
+			$skin = new Skin($SkinId, base64_decode($SkinData), base64_decode($CapeData));
+			$this->loader->addJavaPlayer($this->uuid, (string)mt_rand(2 * (10 ** 15), (3 * (10 ** 15)) - 1), $this->username, $skin, $this);
 		}
 	}
 
@@ -487,112 +485,6 @@ class JavaPlayerNetworkSession extends NetworkSession
 				}
 			}
 		}
-	}
-
-	/**
-	 * Return string of Compound Tag
-	 * @return string
-	 */
-	public function getDimensionCodec(): CompoundTag
-	{
-		$tag = CompoundTag::create();
-
-		// $dimensionTypes = CompoundTag::create()->setTag("minecraft:dimension_type", CompoundTag::create()
-		// 	->setString("type", "minecraft:dimension_type")
-		// );
-
-		// $dimensionTag = new ListTag("value");
-		// $overworldTag = $this->convertToValue("minecraft:overworld", $this->getDimension()->getValue());
-		// $dimensionTag->push($overworldTag);
-		// $dimensionTypes->set($dimensionTag);
-		// $tag->push($dimensionTypes);
-
-		// $biomeTypes = new CompoundTag("minecraft:worldgen/biome");
-		// $biomeTypes.put(new StringTag("type", "minecraft:worldgen/biome"));
-		// $biomeTag = new ListTag("value");
-		// $plainsTag = $this->convertToValue("minecraft:plains", $this->getPlainsTag()->getValue());
-		// $biomeTag->push($plainsTag);
-		// $biomeTypes->push($biomeTag);
-
-		return $tag;
-	}
-
-	/**
-	 * @return CompoundTag
-	 */
-	public function getDimension(): CompoundTag
-	{
-		$overworldTag = CompoundTag::create()
-			->setString("name", "minecraft:overworld")
-			->setByte("piglin_safe", 0)
-			->setByte("natural", 1)
-			->setFloat("ambient_light", 0)
-			->setString("infiniburn", "minecraft:infiniburn_overworld")
-			->setByte("respawn_anchor_works", 0)
-			->setByte("has_skylight", 1)
-			->setByte("bed_works", 1)
-			->setString("effects", "minecraft:overworld")
-			->setByte("has_raids", 1)
-			->setInt("logical_height", 256)
-			->setFloat("coordinate_scale", 1)
-			->setByte("ultrawarm", 0)
-			->setByte("has_ceiling", 0)
-			->setInt("height", 256)
-			->setInt("min_y", 0);
-		return $overworldTag;
-	}
-
-	private function getPlainsTag(): CompoundTag
-	{
-		$plainsTag = CompoundTag::create()
-			->setString("name", "minecraft:plains")
-			->setString("precipitation", "rain")
-			->setFloat("depth", 0.125)
-			->setFloat("temperature", 0.8)
-			->setFloat("scale", 0.05)
-			->setFloat("downfall", 0.4)
-			->setString("category", "plains");
-
-		$effects = CompoundTag::create()
-			->setTag("effects", CompoundTag::create()
-				->setLong("sky_color", 7907327)
-				->setLong("water_fog_color", 329011)
-				->setLong("fog_color", 12638463)
-				->setLong("water_color", 4159204)
-			);
-		$moodSound = CompoundTag::create()
-			->setTag("mood_sound", CompoundTag::create()
-				->setInt("tick_delay", 6000)
-				->setFloat("offset", 2.0)
-				->setString("sound", "minecraft:ambient.cave")
-				->setInt("block_search_extent", 8)
-			);
-		$effects->merge($moodSound);
-
-		$plainsTag->merge($effects);
-
-		return $plainsTag;
-	}
-
-	/**
-	 * @param String $name
-	 * @param array $values All tags that should later be aligned with the formatter.
-	 * @return CompoundTag
-	 */
-	private function convertToValue(string $name, array $values)
-	{
-		$tag = CompoundTag::create()
-			->setTag($name, CompoundTag::create()
-				->setString("name", $name)
-				->setInt("id", 0)
-			);
-		$element = CompoundTag::create();
-		foreach ($values as $value) {
-			$element->setTag("element", $value);
-		}
-		$tag->merge($element);
-
-		return $tag;
 	}
 }
 
