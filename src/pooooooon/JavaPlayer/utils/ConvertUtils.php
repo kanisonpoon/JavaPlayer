@@ -650,7 +650,7 @@ class ConvertUtils
 			$item = ItemFactory::getInstance()->get($itemId, $itemDamage, $itemCount, $itemNBT);
 		}
 
-		self::$timingConvertItem->stopTiming();
+		//self::$timingConvertItem->stopTiming();
 	}
 
 	/**
