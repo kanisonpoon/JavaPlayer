@@ -35,6 +35,8 @@ class PlayerInfoPacket extends OutboundPacket
 {
 
 	const TYPE_ADD = 0;
+	const TYPE_GAMEMODE = 1;
+	const TYPE_LATENCY = 2;
 	const TYPE_UPDATE_NAME = 3;
 	const TYPE_REMOVE = 4;
 
