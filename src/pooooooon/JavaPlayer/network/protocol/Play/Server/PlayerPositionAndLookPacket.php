@@ -48,6 +48,8 @@ class PlayerPositionAndLookPacket extends OutboundPacket
 	public $flags = 0;
 	/** @var int */
 	public $teleportId = 0;
+	/** @var bool */
+	public $dismountVehicle = true;
 
 	public function pid(): int
 	{
@@ -63,6 +65,6 @@ class PlayerPositionAndLookPacket extends OutboundPacket
 		$this->putFloat($this->pitch);
 		$this->putByte($this->flags);
 		$this->putVarInt($this->teleportId);
-		$this->putBool(true);
+		$this->putBool($this->dismountVehicle);
 	}
 }
