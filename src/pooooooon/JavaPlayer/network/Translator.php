@@ -1012,12 +1012,13 @@ class Translator
 				$pk->hashedSeed = 0;
 				$pk->maxPlayers = Server::getInstance()->getMaxPlayers();
 				$pk->viewDistance = 4;//default view Distance is 2 * 2.
+				$pk->simulationDistance = 16;//default
 				$pk->enableRespawnScreen = true;
 				$packets[] = $pk;
 
 				$pk = new PluginMessagePacket();
 				$pk->channel = "minecraft:brand";
-				$pk->data[] = "BigBrother";//displayed "BigBrother" server on debug mode
+				$pk->data[] = $packet->serverSoftwareVersion;//display PocketMine Version on F3 Menu
 				$packets[] = $pk;
 
 				$pk = new ServerDifficultyPacket();
