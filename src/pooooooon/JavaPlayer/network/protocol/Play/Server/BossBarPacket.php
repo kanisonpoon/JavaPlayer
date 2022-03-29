@@ -87,7 +87,7 @@ class BossBarPacket extends OutboundPacket
 
 	protected function encode(): void
 	{
-		$this->putUUID($this->uuid);
+		$this->put($this->uuid);
 		$this->putVarInt($this->actionId);
 		if ($this->actionId == self::TYPE_ADD || $this->actionId == self::TYPE_UPDATE_TITLE) {
 		    $this->putString($this->title);
