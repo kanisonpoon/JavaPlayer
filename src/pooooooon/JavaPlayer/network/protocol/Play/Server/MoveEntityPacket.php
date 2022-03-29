@@ -1,41 +1,34 @@
 <?php
 
-
 namespace pooooooon\javaplayer\network\protocol\Play\Server;
-
 
 use pooooooon\javaplayer\network\OutboundPacket;
 
 class MoveEntityPacket extends OutboundPacket
 {
-	/** @var int $entityid */
+	/** @var int*/
 	public $entityid;
-	/** @var int $xa */
-	public $xa;
-	/** @var int $ya */
-	public $ya;
-	/** @var int $za */
-	public $za;
-	/** @var int $yaw */
-	public $yaw;
-	/** @var int $pitch */
-	public $pitch;
-	/** @var bool onGround */
+	/** @var double*/
+	public $moveX;
+	/** @var double*/
+	public $moveY;
+	/** @var double*/
+	public $moveZ;
+	/** @var bool*/
 	public $onground = true;
-	/** @var bool onGround */
-	public $hasyaw = true;
-	/** @var bool onGround */
-	public $haspitch = true;
 
 	public function pid(): int
 	{
-		return self::ENTITY_POSITION_PACKET;//Entity_move_packet
+		return self::ENTITY_POSITION_PACKET;
 	}
 
 	protected function encode(): void
 	{
 		$this->putVarInt($this->entityid);
 		$this->putShort($this->xa);
-
+		$this->putShort((int) ($this->moveX * 4096));
+		$this->putShort((int) ($this->moveY * 4096));
+		$this->putShort((int) ($this->moveZ * 4096));
+		$this->putBool($this->onGround);
 	}
 }
