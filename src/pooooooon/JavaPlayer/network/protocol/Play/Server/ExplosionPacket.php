@@ -62,7 +62,7 @@ class ExplosionPacket extends OutboundPacket
 		$this->putFloat($this->y);
 		$this->putFloat($this->z);
 		$this->putFloat($this->strength);
-		$this->putInt(count($this->records));
+		$this->putVarInt(count($this->records));
 		foreach ($this->records as $record) {
 			$this->putByte($record->getX());
 			$this->putByte($record->getY());
