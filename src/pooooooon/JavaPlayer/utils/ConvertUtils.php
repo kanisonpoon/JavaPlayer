@@ -580,9 +580,9 @@ class ConvertUtils
 							if (isset($itemNBT["photoname"][$pageNumber])) {
 								$value = $itemNBT["photoname"][$pageNumber];
 							}
-							$photoNameTag = new StringTag("photoname", $value);
+							$photoNameTag = new StringTag($value);
 
-							$listTag[] = CompoundTag::create()->setTag("", new ListTag([
+							$listTag[] = CompoundTag::create()->setTag("photoname", new ListTag([
 								$tag,
 								$photoNameTag,
 							]));
