@@ -58,7 +58,7 @@ class RespawnPacket extends OutboundPacket
 
 	protected function encode(): void
 	{
-		$this->put($this->dimension);
+		$this->put(base64_decode("CgAACAAEbmFtZQATbWluZWNyYWZ0Om92ZXJ3b3JsZAEAC3BpZ2xpbl9zYWZlAAEAB25hdHVyYWwBBQANYW1iaWVudF9saWdodAAAAAAIAAppbmZpbmlidXJuAB8jbWluZWNyYWZ0OmluZmluaWJ1cm5fb3ZlcndvcmxkAQAUcmVzcGF3bl9hbmNob3Jfd29ya3MBAQAMaGFzX3NreWxpZ2h0AQEACWJlZF93b3JrcwEIAAdlZmZlY3RzABNtaW5lY3JhZnQ6b3ZlcndvcmxkAQAJaGFzX3JhaWRzAQMADmxvZ2ljYWxfaGVpZ2h0AAABAAUAEGNvb3JkaW5hdGVfc2NhbGU/gAAAAQAJdWx0cmF3YXJtAAEAC2hhc19jZWlsaW5nAAMABW1pbl95AAAAAAMABmhlaWdodAAAAQAA"));
 		$this->putString($this->worldName);
 		$this->putLong($this->hashedSeed);
 		$this->putByte($this->gamemode);
