@@ -56,6 +56,8 @@ class JoinGamePacket extends OutboundPacket
 	public $maxPlayers;
 	/** @var int */
 	public $viewDistance;
+	/** @var int */
+	public $simulationDistance;
 	/** @var bool */
 	public $reducedDebugInfo = false;
 	/** @var bool */
@@ -86,7 +88,7 @@ class JoinGamePacket extends OutboundPacket
 		$this->putLong($this->hashedSeed);
 		$this->putVarInt($this->maxPlayers);
 		$this->putVarInt($this->viewDistance);
-		$this->putVarInt(16);
+		$this->putVarInt($this->simulationDistance);
 		$this->putBool($this->reducedDebugInfo);
 		$this->putBool($this->enableRespawnScreen);
 		$this->putBool($this->isDebug);
