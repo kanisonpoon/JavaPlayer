@@ -57,6 +57,7 @@ class BossBarPacket extends OutboundPacket
 
 	const FLAG_DARK_SKY = 0x01;
 	const FLAG_DRAGON_BAR = 0x02; //also used to play end music
+	const FLAG_SHOW_FOG = 0x04;
 
 	/** @var string */
 	public $uuid;
@@ -86,31 +87,23 @@ class BossBarPacket extends OutboundPacket
 
 	protected function encode(): void
 	{
-		$this->put($this->uuid);
+		$this->putUUID($this->uuid);
 		$this->putVarInt($this->actionId);
-		switch ($this->actionId) {
-			case self::TYPE_ADD:
-				$this->putString($this->title);
-				$this->putFloat($this->health);
-				$this->putVarInt($this->color);
-				$this->putVarInt($this->division);
-				$this->putByte($this->flags);
-				break;
-			case self::TYPE_REMOVE:
-				break;
-			case self::TYPE_UPDATE_HEALTH:
-				$this->putFloat($this->health);
-				break;
-			case self::TYPE_UPDATE_TITLE:
-				$this->putString($this->title);
-				break;
-			case self::TYPE_UPDATE_COLOR:
-				$this->putVarInt($this->color);
-				break;
-			case self::TYPE_UPDATE_FLAGS:
-				$this->putByte($this->flags);
-				break;
+		if ($this->actionId == self::TYPE_ADD || $this->actionId == self::TYPE_UPDATE_TITLE) {
+		    $this->putString($this->title);
+		}
+
+		if ($this->actionId == self::TYPE_ADD || $this->actionId == self::TYPE_UPDATE_HEALTH) {
+		    $this->putFloat($this->health);
+		}
+
+		if ($this->actionId == self::TYPE_ADD || $this->actionId == self::TYPE_UPDATE_COLOR) {
+		    $this->putVarInt($this->color);
+		    $this->putVarInt($this->division);
+		}
+
+		if ($this->actionId == self::TYPE_ADD || $this->actionId == self::TYPE_UPDATE_FLAGS) {
+			$this->putByte($this->flags);
 		}
 	}
-
 }
