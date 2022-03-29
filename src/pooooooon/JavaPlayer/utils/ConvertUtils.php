@@ -59,8 +59,8 @@ use pocketmine\timings\TimingsHandler;
 use pocketmine\utils\Binary;
 use pocketmine\utils\BinaryStream;
 use pooooooon\javaplayer\Loader;
-use pooooooon\javaplayer\network\JavaTile;
-use pooooooon\javaplayer\network\JavaTileName;
+use pooooooon\javaplayer\network\javadata\JavaTileID;
+use pooooooon\javaplayer\network\javadata\JavaTileName;
 use UnexpectedValueException;
 
 class ConvertUtils
