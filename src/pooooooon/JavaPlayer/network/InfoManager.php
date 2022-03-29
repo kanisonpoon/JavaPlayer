@@ -37,7 +37,7 @@ class InfoManager
 
 	const VERSION = "1.18.2";
 	const PROTOCOL = 758;
-	const SUPPORT_PROTOCOL = [757, 758];
+	const SUPPORT_PROTOCOL = [758];
 
 	/*
 	 * Internal Packet:
