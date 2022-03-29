@@ -25,7 +25,6 @@ class MoveEntityPacket extends OutboundPacket
 	protected function encode(): void
 	{
 		$this->putVarInt($this->entityid);
-		$this->putShort($this->xa);
 		$this->putShort((int) ($this->moveX * 4096));
 		$this->putShort((int) ($this->moveY * 4096));
 		$this->putShort((int) ($this->moveZ * 4096));
