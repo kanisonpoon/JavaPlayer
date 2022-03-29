@@ -195,16 +195,12 @@ class Translator
 
 			case InboundPacket::CHAT_MESSAGE_PACKET:
 				/** @var protocol\Play\Client\ChatMessagePacket $packet */
-				$pk = new TextPacket();
-				$pk->type = 1;//Chat Type
-				$pk->sourceName = "";
-				$pk->message = $packet->message;
-				if (substr($pk->message, 0, 12) === ")respondform") {
+				if (substr($packet->message, 0, 12) === ")respondform") {
 					if (!isset($player->bigBrother_formId)) {
 						$player->getPlayer()->sendMessage(TextFormat::RED . "Form already closed.");
 						return null;
 					}
-					$value = explode(" ", $pk->message)[1];
+					$value = explode(" ", $packet->message)[1];
 
 					$response = new ModalFormResponsePacket();
 					$response->formId = $player->bigBrother_formId;
@@ -218,7 +214,8 @@ class Translator
 					unset($player->bigBrother_formId);
 					return $response;
 				}
-				return $pk;
+				$player->getPlayer()->chat($packet->message);
+				return null;
 
 			case InboundPacket::CLIENT_STATUS_PACKET:
 				/** @var ClientStatusPacket $packet */
