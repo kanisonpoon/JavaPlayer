@@ -48,16 +48,18 @@ class EntityPropertiesPacket extends OutboundPacket
 	protected function encode(): void
 	{
 		$this->putVarInt($this->entityId);
-		$this->putInt(count($this->entries));
+		$this->putVarInt(count($this->entries));
 		foreach ($this->entries as $entry) {
 			$this->putString($entry[0]);
 			$this->putDouble($entry[1]);
-			$this->putVarInt(0);//TODO: Modifiers
+			$this->putVarInt(count($entry[2]) ?? 0);
+			if($entry[2] != null){
+				foreach ($entry[2] as $modifier) {
+					$this->put($modifier[0]);
+					$this->putDouble($modifier[1]);
+					$this->putByte($modifier[2]);
+				}	
+			}
 		}
-
-		// if(DEBUG > 4){
-		// 	var_dump($this->entries);
-		// }
 	}
-
 }
