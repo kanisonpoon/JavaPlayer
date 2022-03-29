@@ -112,6 +112,7 @@ use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use pooooooon\javaplayer\entity\ItemFrameBlockEntity;
 use pooooooon\javaplayer\Loader;
+use pooooooon\javaplayer\network\javadata\JavaTileName;
 use pooooooon\javaplayer\network\protocol\Login\LoginDisconnectPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\AdvancementTabPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\ClientStatusPacket;
