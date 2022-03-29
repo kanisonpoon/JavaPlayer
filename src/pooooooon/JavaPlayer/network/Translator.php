@@ -2096,10 +2096,19 @@ class Translator
 						if ($packet->particles) {
 							$flags |= 0x02;
 						}
+						$flags |= 0x04;//Show icon
 
 						$pk = new EntityEffectPacket();
 						$pk->entityId = $packet->actorRuntimeId;
-						$pk->effectId = $packet->effectId;
+						$id = $packet->effectId;
+						if($id == 24 || $id == 27){
+							$id++;
+						}elseif($id == 25){
+							return null;
+						}elseif($id == 26 || $id >= 28){
+							$id += 3;
+						}
+						$pk->effectId = $id;
 						$pk->amplifier = $packet->amplifier;
 						$pk->duration = $packet->duration;
 						$pk->flags = $flags;
@@ -2108,12 +2117,17 @@ class Translator
 					case MobEffectPacket::EVENT_REMOVE:
 						$pk = new RemoveEntityEffectPacket();
 						$pk->entityId = $packet->actorRuntimeId;
-						$pk->effectId = $packet->effectId;
+						$id = $packet->effectId;
+						if($id == 24 || $id == 27){
+							$id++;
+						}elseif($id == 25){
+							return null;
+						}elseif($id == 26 || $id >= 28){
+							$id += 3;
+						}
+						$pk->effectId = $id;
 
 						return $pk;
-					default:
-						echo "MobEffectPacket: " . $packet->eventId . "\n";
-						break;
 				}
 
 				return null;
