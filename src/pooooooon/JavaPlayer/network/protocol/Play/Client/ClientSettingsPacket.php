@@ -46,6 +46,10 @@ class ClientSettingsPacket extends InboundPacket
 	public $displayedSkinParts;
 	/** @var int */
 	public $mainHand;
+	/** @var bool */
+	public $textFilteringEnabled;
+	/** @var bool */
+	public $allowsListing;
 
 	public function pid(): int
 	{
@@ -60,5 +64,7 @@ class ClientSettingsPacket extends InboundPacket
 		$this->chatColors = $this->getBool();
 		$this->displayedSkinParts = $this->getByte();
 		$this->mainHand = $this->getVarInt();
+		$this->textFilteringEnabled = $this->getBool();
+		$this->allowsListing = $this->getBool();
 	}
 }
