@@ -128,7 +128,7 @@ class JavaEffectId {
 	public const DARKNESS = 33;
 }
 class JavaEntityId {
-    public const AREA_EFFECT_CLOUD = 0;
+	public const AREA_EFFECT_CLOUD = 0;
 	public const ARMOR_STAND = 1;
 	public const ARROW = 2;
 	public const AXOLOTL = 3;
