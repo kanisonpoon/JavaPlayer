@@ -1986,7 +1986,8 @@ class Translator
 
 			case Info::SET_TITLE_PACKET:
 				/** @var SetTitlePacket $packet */
-				switch ($packet->type) {
+				//TODO:TITLE 
+				/*switch ($packet->type) {
 					case SetTitlePacket::TYPE_CLEAR_TITLE:
 						$pk = new TitlePacket();
 						$pk->actionId = TitlePacket::TYPE_HIDE;
@@ -2027,7 +2028,7 @@ class Translator
 					default:
 						echo "SetTitlePacket: " . $packet->type . "\n";
 						break;
-				}
+				}*/
 
 				return null;
 
@@ -2103,7 +2104,7 @@ class Translator
 						if($id == 24 || $id == 27){
 							$id++;
 						}elseif($id == 25){
-							return null;
+							$id = 19;
 						}elseif($id == 26 || $id >= 28){
 							$id += 3;
 						}
@@ -2120,12 +2121,11 @@ class Translator
 						if($id == 24 || $id == 27){
 							$id++;
 						}elseif($id == 25){
-							return null;
+							$id = 19;
 						}elseif($id == 26 || $id >= 28){
 							$id += 3;
 						}
 						$pk->effectId = $id;
-
 						return $pk;
 				}
 
@@ -2247,18 +2247,17 @@ class Translator
 					if($d->getTypeId() == EntityMetadataProperties::PLAYER_BED_POSITION){
 						$bedXYZ = $key;
 						if($bedXYZ !== null){
-							/** @var Vector3 $bedXYZ */
+						/** @var Vector3 $bedXYZ */
+						/*$pk = new UseBedPacket();
+						$pk->entityId = $packet->actorRuntimeId;
+						$pk->bedX = $bedXYZ->getX();
+						$pk->bedY = $bedXYZ->getY();
+						$pk->bedZ = $bedXYZ->getZ();
 
-				/*$pk = new UseBedPacket();
-				$pk->entityId = $packet->actorRuntimeId;
-				$pk->bedX = $bedXYZ->getX();
-				$pk->bedY = $bedXYZ->getY();
-				$pk->bedZ = $bedXYZ->getZ();
-
-				$packets[] = $pk;*/
-				/*}
-			}
-		}*/
+						$packets[] = $pk;*/
+						/*}
+					}
+				}*/
 
 				// $pk = new EntityMetadataPacket();
 				// $pk->entityId = $packet->actorRuntimeId;
@@ -2364,26 +2363,26 @@ class Translator
 					case JavaTile::FLOWER_POT:
 						$pk->actionId = 5;
 						/** @var CompoundTag $nbt */
-				/*$pk->nbtData = ConvertUtils::convertBlockEntity(true, $nbt);
-			break;
-			case JavaTile::ITEM_FRAME:
-				if(($entity = ItemFrameBlockEntity::getItemFrame($player->getPlayer()->getWorld(), $packet->x, $packet->y, $packet->z)) !== null){
-					$entity->spawnTo($player);//Update Item Frame
-				}
-				return null;
-			case JavaTile::SIGN:
-				$pk->actionId = 9;
-				/** @var CompoundTag $nbt */
-				/*$pk->nbtData = ConvertUtils::convertBlockEntity(true, $nbt);
-			break;
-			case JavaTile::SKULL:
-				$pk->actionId = 4;
-				$pk->nbtData = $nbt;
-			break;
-			default:
-				echo "BlockEntityDataPacket: ".$nbt["id"]."\n";
-				return null;
-		}*/
+						/*$pk->nbtData = ConvertUtils::convertBlockEntity(true, $nbt);
+					break;
+					case JavaTile::ITEM_FRAME:
+						if(($entity = ItemFrameBlockEntity::getItemFrame($player->getPlayer()->getWorld(), $packet->x, $packet->y, $packet->z)) !== null){
+							$entity->spawnTo($player);//Update Item Frame
+						}
+						return null;
+					case JavaTile::SIGN:
+						$pk->actionId = 9;
+						/** @var CompoundTag $nbt */
+						/*$pk->nbtData = ConvertUtils::convertBlockEntity(true, $nbt);
+					break;
+					case JavaTile::SKULL:
+						$pk->actionId = 4;
+						$pk->nbtData = $nbt;
+					break;
+					default:
+						echo "BlockEntityDataPacket: ".$nbt["id"]."\n";
+						return null;
+				}*/
 
 				return null;
 
