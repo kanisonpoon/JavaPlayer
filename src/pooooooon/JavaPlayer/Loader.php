@@ -19,9 +19,11 @@ use pocketmine\player\Player;
 use pocketmine\player\XboxLivePlayerInfo;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
+use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use pooooooon\javaplayer\info\JavaPlayerInfo;
 use pooooooon\javaplayer\listener\JavaPlayerListener;
+use pooooooon\javaplayer\network\InfoManager;
 use pooooooon\javaplayer\network\JavaPlayerNetworkSession;
 use pooooooon\javaplayer\network\protocol\Play\Server\KeepAlivePacket;
 use pooooooon\javaplayer\network\ProtocolInterface;
@@ -446,20 +448,15 @@ final class Loader extends PluginBase implements Listener
 
 		$this->saveResource("players.json");
 
-		$ip = (string)$this->getConfig()->get("ip");
-		$port = (int)$this->getConfig()->get("port");
-		$motd = (string)$this->getConfig()->get("motd");
-		// $this->rsa = new RSA();
-		// switch(constant("CRYPT_RSA_MODE")){
-		// 	case RSA::MODE_OPENSSL:
-		// 		$this->rsa->configFile = $this->getDataFolder() . "openssl.cnf";
-		// 		$this->getLogger()->info("Use openssl as RSA encryption engine.");
-		// 	break;
-		// 	case RSA::MODE_INTERNAL:
-		// 		$this->getLogger()->info("Use phpseclib internal engine for RSA encryption.");
-		// 	break;
-		// }
+		$ip = (string)$this->getConfig()->get("ip") ?? Server::getInstance()->getIp();
+		$port = (int)$this->getConfig()->get("port") ?? 25565;
+		$motd = (string)$this->getConfig()->get("motd") ?? Server::getInstance()->getMotd();
+		$isUsePmMotd =  (bool)$this->getConfig()->get("UsePmMotd") ?? true;
+		if($isUsePmMotd){
+			$motd = Server::getInstance()->getMotd();
+		}
 		$this->translator = new Translator();
+		$this->getLogger()->info("Starting Minecraft: PC server on ".($ip === "0.0.0.0" ? "*" : $ip).":".$port." version ".InfoManager::VERSION);
 		$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator, (int)$this->getConfig()->get("network-compression-threshold"), $port, $ip, $motd);
 		$this->getServer()->getNetwork()->registerInterface($this->interface);
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
