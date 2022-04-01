@@ -161,9 +161,7 @@ class chunktask extends AsyncTask
 			}
 			$longData[] = $long;
 			$heightMaps = CompoundTag::create();
-			foreach ((new LongArrayTag($longData))->getValue() as $value) {
-				$heightMaps->setLong("MOTION_BLOCKING", $value);
-			}//TODO:this is not working
+			$heightMaps->setTag("MOTION_BLOCKING", new LongArrayTag($longData));
 
 			$payload1 = "";
 			for ($i = 0; $i < 256; $i++) {
