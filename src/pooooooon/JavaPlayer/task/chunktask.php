@@ -134,8 +134,14 @@ class chunktask extends AsyncTask
 				$payload .= Binary::writeJavaVarInt(strlen($chunkData) / 8);
 
 				/* Data Array */
-				$payload .= $chunkData;
-				$payload .= $biomes;
+				$payload .= $chunkData;//todo:fix this
+				
+				$payload .= Binary::writeByte(8);//Bits Per biome
+				$biomecount = strlen($chunk->getBiomeIdArray());//biomecount
+				$payload .= Binary::writeJavaVarInt($biomecount);
+				for ($i = 0; $i < $biomecount; $i++) {
+					$payload .= Binary::writeJavaVarInt(ord($chunk->getBiomeIdArray()[$i]));//biome
+				}
 			}
 
 			$chunkData = $payload;
@@ -154,10 +160,10 @@ class chunktask extends AsyncTask
 				}
 			}
 			$longData[] = $long;
-
+			$heightMaps = CompoundTag::create();
 			foreach ((new LongArrayTag($longData))->getValue() as $value) {
-				$heightMaps = CompoundTag::create()->setLong("MOTION_BLOCKING", $value);
-			}
+				$heightMaps->setLong("MOTION_BLOCKING", $value);
+			}//TODO:this is not working
 
 			$payload1 = "";
 			for ($i = 0; $i < 256; $i++) {
