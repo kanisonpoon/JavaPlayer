@@ -1004,7 +1004,7 @@ class Translator
 
 				$pk->isHardcore = Server::getInstance()->isHardcore();
 				$pk->entityId = $packet->actorRuntimeId;
-				$pk->gamemode = 1; //$packet->playerGamemode
+				$pk->gamemode = $packet->playerGamemode;
 				$pk->previousGamemode = $packet->playerGamemode;
 				$pk->worldNames = ["minecraft:world"];
 				$pk->dimensionCodec = "";
