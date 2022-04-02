@@ -303,4 +303,12 @@ abstract class Packet extends stdClass
 		$this->putVarInt(strlen($v));
 		$this->put($v);
 	}
+	
+	protected function putBitSet(array $v): void
+	{
+		$this->putVarInt(count($v));
+		foreach($v as $content){
+			$this->putLong($content);
+		}
+	}
 }
