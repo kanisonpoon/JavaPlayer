@@ -132,6 +132,7 @@ use pooooooon\javaplayer\network\protocol\Play\Server\BossBarPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\ChangeGameStatePacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\ChatMessagePacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\DestroyEntitiesPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\ClearTitlesPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\DisplayScoreboardPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\EffectPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\EntityAnimationPacket as STCAnimatePacket;
@@ -159,6 +160,10 @@ use pooooooon\javaplayer\network\protocol\Play\Server\ScoreboardObjectivePacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\SelectAdvancementTabPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\ServerDifficultyPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\SpawnEntityPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\SetActionBarTextPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\SetSubtitleTextPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\SetTitlesAnimationPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\SetTitleTextPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\SpawnExperienceOrbPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\SpawnLivingEntityPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\SpawnPaintingPacket;
@@ -1986,49 +1991,43 @@ class Translator
 
 			case Info::SET_TITLE_PACKET:
 				/** @var SetTitlePacket $packet */
-				//TODO:TITLE 
-				/*switch ($packet->type) {
+				switch ($packet->type) {
 					case SetTitlePacket::TYPE_CLEAR_TITLE:
-						$pk = new TitlePacket();
-						$pk->actionId = TitlePacket::TYPE_HIDE;
+						$pk = new ClearTitlesPacket();
+						$pk->resetTimes = false;
 
 						return $pk;
 					case SetTitlePacket::TYPE_RESET_TITLE:
-						$pk = new TitlePacket();
-						$pk->actionId = TitlePacket::TYPE_RESET;
+						$pk = new ClearTitlesPacket();
+						$pk->resetTimes = true;
 
 						return $pk;
+					case SetTitlePacket::TYPE_SET_TITLE_JSON:
 					case SetTitlePacket::TYPE_SET_TITLE:
-						$pk = new TitlePacket();
-						$pk->actionId = TitlePacket::TYPE_SET_TITLE;
-						$pk->data = Loader::toJSON($packet->text);
+						$pk = new SetTitleTextPacket();
+						$pk->text = ($packet->type == SetTitlePacket::TYPE_SET_TITLE) ? Loader::toJSON($packet->text) : $packet->text;
 
 						return $pk;
+					case SetTitlePacket::TYPE_SET_SUBTITLE_JSON:
 					case SetTitlePacket::TYPE_SET_SUBTITLE:
-						$pk = new TitlePacket();
-						$pk->actionId = TitlePacket::TYPE_SET_SUB_TITLE;
-						$pk->data = Loader::toJSON($packet->text);
+						$pk = new SetSubtitleTextPacket();
+						$pk->text = ($packet->type == SetTitlePacket::TYPE_SET_SUBTITLE) ? Loader::toJSON($packet->text) : $packet->text;
 
 						return $pk;
+					case SetTitlePacket::TYPE_SET_ACTIONBAR_MESSAGE_JSON:
 					case SetTitlePacket::TYPE_SET_ACTIONBAR_MESSAGE:
-						$pk = new TitlePacket();
-						$pk->actionId = TitlePacket::TYPE_SET_ACTION_BAR;
-						$pk->data = Loader::toJSON($packet->text);
+						$pk = new SetActionBarTextPacket();
+						$pk->text = ($packet->type == SetTitlePacket::TYPE_SET_ACTIONBAR_MESSAGE) ? Loader::toJSON($packet->text) : $packet->text;
 
 						return $pk;
 					case SetTitlePacket::TYPE_SET_ANIMATION_TIMES:
-						$pk = new TitlePacket();
-						$pk->actionId = TitlePacket::TYPE_SET_SETTINGS;
-						$pk->data = [];
-						$pk->data[0] = $packet->fadeInTime;
-						$pk->data[1] = $packet->stayTime;
-						$pk->data[2] = $packet->fadeOutTime;
+						$pk = new SetTitlesAnimationPacket();
+						$pk->fadeIn = $packet->fadeInTime;
+						$pk->stay = $packet->stayTime;
+						$pk->fadeOut = $packet->fadeOutTime;
 
 						return $pk;
-					default:
-						echo "SetTitlePacket: " . $packet->type . "\n";
-						break;
-				}*/
+				}
 
 				return null;
 
