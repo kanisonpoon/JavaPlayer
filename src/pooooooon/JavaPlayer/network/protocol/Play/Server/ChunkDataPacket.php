@@ -69,7 +69,8 @@ class ChunkDataPacket extends OutboundPacket
 	{
 		$this->putInt($this->chunkX);
 		$this->putInt($this->chunkZ);
-		$this->put($this->heightMaps ?? base64_decode("CgAPTU9USU9OX0JMT0NLSU5HAA=="));//heightmap
+		$this->put($this->heightMaps ?? base64_decode("CgAADAAPTU9USU9OX0JMT0NLSU5HAAAAJRMJhMJZLJRKE0mk0mk0mkwTCWSyUSicTRNJpNJpMJhMEslEknE0mk0TSaTCYTCYSxJJpNJpNJpNEwmEwmEslEoTSaTSaTSaTRMJhLJRKJJNE0mk0mk0mEwSyUSiSTSaTRMJhMJhMJhLEokk0mk0mk0TCWSyWSyWShNJpMJhMJhMEslkolEolEoTCWSyWSyWSxKJRKJRKJhMEolEolEolEoSiUSiYTCWShJJJJJJJJJKEolkslEkkkkSCSSSSSSSSRKJJIJBIJBIEgkEkkkkkkoSCQSCQSCQSBIJJJJJJJBIEgkEgkEgkEgSCSSCQSCQSBIJBIJBIJBIEgkEgjkgkEgSCQSCQSCQSRHI5HI5HJBIEgkEgkEgkEgRyORyORyQSAAAAAI5HI5HAA=="));//heightmap
+		//TODO:FIX chunkdata it bug
 		$this->putVarInt(strlen($this->data));
 		$this->put($this->data);
 		$this->putVarInt(0);//blockEntities count
@@ -86,14 +87,17 @@ class ChunkDataPacket extends OutboundPacket
 		// 	$this->put(ConvertUtils::convertNBTDataFromPEtoPC(ConvertUtils::convertBlockEntity(true, $blockEntity->getSpawnCompound())));
 		// }
 		$this->putBool($this->trustEdges);
-		$this->putVarInt($this->skyLightMask);
-		$this->putVarInt($this->blockLightMask);
-		$this->putVarInt($this->emptySkyLightMask);
-		$this->putVarInt($this->emptyBlockLightMask);
+		$this->putBitSet([$this->skyLightMask]);
+		$this->putBitSet([$this->blockLightMask]);
+		$this->putBitSet([$this->emptySkyLightMask]);
+		$this->putBitSet([$this->emptyBlockLightMask]);
+
+		$this->putVarInt(count($this->skyLight));
 		foreach ($this->skyLight as $skyLight) {
 			$this->putVarInt(strlen($skyLight));
 			$this->put($skyLight);
 		}
+		$this->putVarInt(count($this->blockLight));
 		foreach ($this->blockLight as $blockLight) {
 			$this->putVarInt(strlen($blockLight));
 			$this->put($blockLight);
