@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace pooooooon\javaplayer;
 
 use InvalidArgumentException;
-use phpseclib\Crypt\RSA;
 use pocketmine\entity\Skin;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\network\mcpe\convert\GlobalItemTypeDictionary;
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackClientResponsePacket;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializerContext;
@@ -347,7 +347,11 @@ final class Loader extends PluginBase implements Listener
 		$packet->encode($serializer);
 		$session->handleDataPacket($packet, $serializer->getBuffer());
 
-		$session->getPlayer()->setViewDistance(4);
+		$pk = new RequestChunkRadiusPacket();
+		$pk->radius = 4;
+		$serializer = PacketSerializer::encoder(new PacketSerializerContext(GlobalItemTypeDictionary::getInstance()->getDictionary()));
+		$pk->encode($serializer);
+		$session->handleDataPacket($pk, $serializer->getBuffer());
 
 		$pk = new KeepAlivePacket();
 		$pk->keepAliveId = mt_rand();
