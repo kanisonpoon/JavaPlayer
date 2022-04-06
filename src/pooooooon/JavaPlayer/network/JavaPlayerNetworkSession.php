@@ -29,6 +29,8 @@ use pooooooon\javaplayer\network\protocol\Login\EncryptionResponsePacket;
 use pooooooon\javaplayer\network\protocol\Login\LoginSuccessPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\PlayerPositionAndLookPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\UnloadChunkPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\UpdateViewDistancePacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\UpdateViewPositionPacket;
 use pooooooon\javaplayer\task\chunktask;
 use pooooooon\javaplayer\utils\JavaBinarystream;
 use Ramsey\Uuid\Nonstandard\Uuid;
@@ -142,6 +144,18 @@ class JavaPlayerNetworkSession extends NetworkSession
 				$this->putRawPacket($packets);
 			}
 		}
+	}
+	
+	public function syncViewAreaCenterPoint(Vector3 $newPos, int $viewDistance) : void
+	{
+		$pk = new UpdateViewPositionPacket();
+		$pk->chunkX = $newPos->getX() >> 4;
+		$pk->chunkZ = $newPos->getZ() >> 4;
+		$this->putRawPacket($pk);
+
+		$pk = new UpdateViewDistancePacket();
+		$pk->viewDistance = $viewDistance * 2;
+		$this->putRawPacket($pk);
 	}
 
 	/*public function startUsingChunk(int $chunkX, int $chunkZ, Closure $onCompletion): void
