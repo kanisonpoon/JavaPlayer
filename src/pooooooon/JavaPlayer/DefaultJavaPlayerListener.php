@@ -21,6 +21,7 @@ use pocketmine\scheduler\ClosureTask;
 use pooooooon\javaplayer\listener\JavaPlayerListener;
 use pooooooon\javaplayer\network\JavaPlayerNetworkSession;
 use pooooooon\javaplayer\network\listener\ClosureJavaPlayerPacketListener;
+use pooooooon\javaplayer\network\protocol\Play\Server\PlayerPositionAndLookPacket;
 
 final class DefaultJavaPlayerListener implements JavaPlayerListener
 {
