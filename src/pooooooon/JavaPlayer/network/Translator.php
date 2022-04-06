@@ -2645,10 +2645,22 @@ class Translator
 				}
 				$player->bigBrother_formId = $packet->formId;
 				return $packets;
+			case Info::ADVENTURE_SETTINGS_PACKET:
+				/** @var AdventureSettingsPacket $packet */
+				$canFly = $packet->getFlag($packet::ALLOW_FLIGHT);
+				$damageDisabled = $packet->getFlag($packet::WORLD_IMMUTABLE);
+				$isFlying = $packet->getFlag($packet::FLYING);
 
+				$pk = new PlayerAbilitiesPacket();
+				$pk->flyingSpeed = 0.05;
+				$pk->viewModifierField = 0.1;
+				$pk->canFly = $canFly;
+				$pk->damageDisabled = $damageDisabled;
+				$pk->isFlying = $isFlying;
+				$pk->isCreative = (TypeConverter::getInstance()->coreGameModeToProtocol($player->getPlayer()->getGamemode()) & 0x01) > 0;
+				return $pk;
 			case Info::RESOURCE_PACKS_INFO_PACKET:
 			case Info::RESPAWN_PACKET:
-			case Info::ADVENTURE_SETTINGS_PACKET:
 			case Info::AVAILABLE_COMMANDS_PACKET:
 			case Info::AVAILABLE_ACTOR_IDENTIFIERS_PACKET:
 			case Info::NETWORK_CHUNK_PUBLISHER_UPDATE_PACKET:
