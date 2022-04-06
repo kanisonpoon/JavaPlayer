@@ -72,7 +72,7 @@ class JavaBinarystream extends Binary
 	}
 
 	/**
-	 * @param MetadataProperty[] $data
+	 * @param MetadataProperty[]|array $data
 	 * @return string
 	 */
 	public static function writeMetadata(array $data): string
@@ -88,7 +88,6 @@ class JavaBinarystream extends Binary
 		$m = "";
 
 		foreach ($data as $bottom => $d) {
-			$d = $d->getTypeId();
 			if ($bottom === "convert") {
 				continue;
 			}
