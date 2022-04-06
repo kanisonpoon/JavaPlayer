@@ -763,8 +763,10 @@ class ConvertUtils
 	{
 		$newData = [];
 
-		foreach ($oldData as $bottom => $d) {
-			$d = $d->getTypeId();
+		foreach ($oldData as $bottom => $data) {
+			$d = [];
+			$d[] = $data->getTypeId();
+			$d[] = $data->getgetValue();
 			var_dump($d);
 			switch ($bottom) {
 				case EntityMetadataProperties::FLAGS://Flags
@@ -781,9 +783,17 @@ class ConvertUtils
 					if (((int)$d[1] & (1 << EntityMetadataFlags::SPRINTING)) > 0) {
 						$flags |= 0x08;
 					}
+					
+					if (((int)$d[1] & (1 << EntityMetadataFlags::SWIMMING)) > 0) {
+						$flags |= 0x10;
+					}
 
 					if (((int)$d[1] & (1 << EntityMetadataFlags::INVISIBLE)) > 0) {
 						$flags |= 0x20;
+					}
+					
+					if (((int)$d[1] & (1 << EntityMetadataFlags::GLIDING)) > 0) {
+						$flags |= 0x80;
 					}
 
 					if (((int)$d[1] & (1 << EntityMetadataFlags::CAN_SHOW_NAMETAG)) > 0) {
