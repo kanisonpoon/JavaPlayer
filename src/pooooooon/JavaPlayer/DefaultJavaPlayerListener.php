@@ -40,7 +40,16 @@ final class DefaultJavaPlayerListener implements JavaPlayerListener
 		$entity_runtime_id = $player->getId();
 		$session->registerSpecificPacketListener(PlayStatusPacket::class, new ClosureJavaPlayerPacketListener(function (ClientboundPacket $packet, NetworkSession $session) use ($entity_runtime_id): void {
 			assert($packet instanceof PlayStatusPacket);
+			assert($session instanceof JavaPlayerNetworkSession);
 			if ($packet->status === PlayStatusPacket::PLAYER_SPAWN) {
+				$pk = new PlayerPositionAndLookPacket();//for loading screen
+				$pk->x = $session->getPlayer()->getPosition()->getX();
+				$pk->y = $session->getPlayer()->getPosition()->getY();
+				$pk->z = $session->getPlayer()->getPosition()->getZ();
+				$pk->yaw = 0;
+				$pk->pitch = 0;
+				$pk->flags = 0;
+				$session->putRawPacket($pk);
 				$this->plugin->getScheduler()->scheduleDelayedTask(new ClosureTask(static function () use ($session, $entity_runtime_id): void {
 					if ($session->isConnected()) {
 						$packet = new SetLocalPlayerAsInitializedPacket();
