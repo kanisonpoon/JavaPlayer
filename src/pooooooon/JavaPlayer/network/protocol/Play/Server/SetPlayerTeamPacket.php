@@ -34,34 +34,34 @@ use pooooooon\javaplayer\network\OutboundPacket;
 class SetPlayerTeamPacket extends OutboundPacket
 {
 
-    const ACTION_CREATE = 0;
-    const ACTION_REMOVE = 1;
-    const ACTION_UPDATE = 2;
-    const ACTION_ADD_PLAYER = 3;
-    const ACTION_REMOVE_PLAYER = 4;
+	const ACTION_CREATE = 0;
+	const ACTION_REMOVE = 1;
+	const ACTION_UPDATE = 2;
+	const ACTION_ADD_PLAYER = 3;
+	const ACTION_REMOVE_PLAYER = 4;
 
 	/** @var string */
 	public $teamName;
-    /** @var int */
-    public $action;
-    /** @var string */
-    public $displayName;
-    /** @var string */
-    public $prefix;
-    /** @var string */
-    public $suffix;
-    /** @var bool */
-    public $friendlyFire;
-    /** @var bool */
-    public $seeFriendlyInvisibles;
-    /** @var string */
-    public $nameTagVisibility;
-    /** @var string */
-    public $collisionRule;
-    /** @var int */
-    public $color;
-    /** @var string[] */
-    public $players;
+	/** @var int */
+	public $action;
+	/** @var string */
+	public $displayName;
+	/** @var string */
+	public $prefix;
+	/** @var string */
+	public $suffix;
+	/** @var bool */
+	public $friendlyFire;
+	/** @var bool */
+	public $seeFriendlyInvisibles;
+	/** @var string */
+	public $nameTagVisibility;
+	/** @var string */
+	public $collisionRule;
+	/** @var int */
+	public $color;
+	/** @var string[] */
+	public $players;
 
 	public function pid(): int
 	{
@@ -71,24 +71,24 @@ class SetPlayerTeamPacket extends OutboundPacket
 	protected function encode(): void
 	{
 		$this->putString($this->teamName);
-        $this->putByte($this->action);
-        if ($this->action == self::ACTION_CREATE || $this->action == self::ACTION_UPDATE) {
-            $this->putString($this->displayName);
-            $this->putByte(($this->friendlyFire ? 0x1 : 0x0) | ($this->seeFriendlyInvisibles ? 0x2 : 0x0));
-            $this->putString($this->nameTagVisibility);
-            $this->putString($this->collisionRule);
-            $this->putVarInt($this->color);
-            $this->putString($this->prefix);
-            $this->putString($this->suffix);
-        }
+		$this->putByte($this->action);
+		if ($this->action == self::ACTION_CREATE || $this->action == self::ACTION_UPDATE) {
+			$this->putString($this->displayName);
+			$this->putByte(($this->friendlyFire ? 0x1 : 0x0) | ($this->seeFriendlyInvisibles ? 0x2 : 0x0));
+			$this->putString($this->nameTagVisibility);
+			$this->putString($this->collisionRule);
+			$this->putVarInt($this->color);
+			$this->putString($this->prefix);
+			$this->putString($this->suffix);
+		}
 
-        if ($this->action == self::ACTION_CREATE || $this->action == self::ACTION_ADD_PLAYER || $this->action == self::ACTION_REMOVE_PLAYER) {
-            $this->putVarInt(count($this->players));
-            foreach($this->players as $player) {
-                if ($player !== null) {
-                    $this->putString($player);
-                }
-            }
-        }
+		if ($this->action == self::ACTION_CREATE || $this->action == self::ACTION_ADD_PLAYER || $this->action == self::ACTION_REMOVE_PLAYER) {
+			$this->putVarInt(count($this->players));
+			foreach($this->players as $player) {
+				if ($player !== null) {
+				    $this->putString($player);
+				}
+			}
+		}
 	}
 }
