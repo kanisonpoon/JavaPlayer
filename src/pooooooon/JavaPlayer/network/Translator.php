@@ -1506,6 +1506,9 @@ class Translator
 					$pk->headPitch = 0;
 					$packets[] = $pk;
 				}
+				$pk = new EntityMetadataPacket();
+				$pk->entityId = $packet->actorRuntimeId;
+				$pk->metadata = $packet->metadata;
 				$packets[] = $pk;
 
 				$pk = new EntityTeleportPacket();
@@ -1517,10 +1520,10 @@ class Translator
 				$pk->pitch = $packet->pitch;
 				$packets[] = $pk;
 
-				$player->bigBrother_addEntityList($packet->actorRuntimeId, $type);
-				if (isset($packet->metadata[EntityMetadataProperties::NAMETAG])) {
-					$player->bigBrother_setBossBarData("nameTag", $packet->metadata[EntityMetadataProperties::NAMETAG]);
-				}
+// 				$player->bigBrother_addEntityList($packet->actorRuntimeId, $type);
+// 				if (isset($packet->metadata[EntityMetadataProperties::NAMETAG])) {
+// 					$player->bigBrother_setBossBarData("nameTag", $packet->metadata[EntityMetadataProperties::NAMETAG]);
+// 				}
 
 				return $packets;
 
