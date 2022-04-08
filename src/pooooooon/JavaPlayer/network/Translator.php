@@ -31,6 +31,7 @@ namespace pooooooon\javaplayer\network;
 
 use pocketmine\block\BlockLegacyIds;
 use pocketmine\block\tile\Tile;
+use pocketmine\data\bedrock\EntityLegacyIds;
 use pocketmine\data\bedrock\LegacyEntityIdToStringIdMap;
 use pocketmine\entity\Entity;
 use pocketmine\item\ItemIds;
@@ -112,6 +113,7 @@ use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use pooooooon\javaplayer\entity\ItemFrameBlockEntity;
 use pooooooon\javaplayer\Loader;
+use pooooooon\javaplayer\network\javadata\JavaEntityId;
 use pooooooon\javaplayer\network\javadata\JavaTileName;
 use pooooooon\javaplayer\network\protocol\Login\LoginDisconnectPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\AdvancementTabPacket;
@@ -1134,174 +1136,166 @@ class Translator
 				$isObject = false;
 				$type = "generic";
 				$data = 1;
+				$id = 1;
 
 				switch ($packet->type) {
-					case 10://Chicken
-						$type = "chicken";
-						$packet->type = 93;
+					case EntityLegacyIds::CHICKEN:
+						$id = JavaEntityId::CHICKEN;
 						break;
-					case 11://Cow
-						$type = "cow";
-						$packet->type = 92;
+					case EntityLegacyIds::COW:
+						$id = JavaEntityId::COW;
 						break;
-					case 12://Pig
-						$type = "pig";
-						$packet->type = 90;
+					case EntityLegacyIds::PIG:
+						$id = JavaEntityId::PIG;
 						break;
-					case 13://Sheep
-						$type = "sheep";
-						$packet->type = 91;
+					case EntityLegacyIds::SHEEP:
+						$id = JavaEntityId::SHEEP;
 						break;
-					case 14://Wolf
-						$type = "wolf";
-						$packet->type = 95;
+					case EntityLegacyIds::WOLF:
+						$id = JavaEntityId::WOLF;
 						break;
-					case 15://Villager
-						$type = "villager";
-						$packet->type = 120;
+					case EntityLegacyIds::VILLAGER:
+						$$id = JavaEntityId::VILLAGER;
 						break;
-					case 16://Moosh room
-						$type = "cow";
-						$packet->type = 96;
+					case EntityLegacyIds::MOOSHROOM:
+						$$id = JavaEntityId::MOOSHROOM;
 						break;
-					case 17://Squid
-						$type = "squid";
-						$packet->type = 94;
+					case EntityLegacyIds::SQUID:
+						$$id = JavaEntityId::SQUID;
 						break;
-					case 18://Rabbit
-						$type = "rabbit";
-						$packet->type = 101;
+					case EntityLegacyIds::RABBIT:
+						$id = JavaEntityId::RABBIT;
 						break;
-					case 19://Bat
-						$type = "bat";
-						$packet->type = 65;
+					case EntityLegacyIds::BAT:
+						$id = JavaEntityId::BAT;
 						break;
-					case 20://Iron Golem
-						$type = "iron_golem";
-						$packet->type = 99;
+					case EntityLegacyIds::IRON_GOLEM:
+						$id = JavaEntityId::IRON_GOLEM;
 						break;
-					case 21://Snow Golem (Snowman)
-						$type = "snowman";
-						$packet->type = 97;
+					case EntityLegacyIds::SNOW_GOLEM:
+						$id = JavaEntityId::SNOW_GOLEM;
 						break;
-					case 22://Ocelot
-						$type = "cat";
-						$packet->type = 98;
+					case EntityLegacyIds::OCELOT:
+						$id = JavaEntityId::OCELOT;
 						break;
-					case 23://Horse
-						$type = "horse";
-						$packet->type = 100;
+					case EntityLegacyIds::HORSE:
+						$id = JavaEntityId::HORSE;
 						break;
-					case 28://PolarBear
-						$type = "polar_bear";
-						$packet->type = 102;
+					case EntityLegacyIds::DONKEY:
+						$id = JavaEntityId::DONKEY;
 						break;
-					case 32://Zombie
-						$type = "zombie";
-						$packet->type = 54;
+					case EntityLegacyIds::MULE:
+						$id = JavaEntityId::MULE;
 						break;
-					case 33://Creeper
-						$type = "creeper";
-						$packet->type = 50;
+					case EntityLegacyIds::SKELETON_HORSE:
+						$id = JavaEntityId::SKELETON_HORSE;
 						break;
-					case 34://Skeleton
-						$type = "skeleton";
-						$packet->type = 51;
+					case EntityLegacyIds::ZOMBIE_HORSE:
+						$id = JavaEntityId::ZOMBIE_HORSE;
 						break;
-					case 35://Spider
-						$type = "spider";
-						$packet->type = 52;
+					case EntityLegacyIds::POLAR_BEAR:
+						$id = JavaEntityId::POLAR_BEAR;
 						break;
-					case 36://PigZombie
-						$type = "zombie_pigman";
-						$packet->type = 57;
+					case EntityLegacyIds::LLAMA:
+						$id = JavaEntityId::LLAMA;
 						break;
-					case 37://Slime
-						$type = "slime";
-						$packet->type = 55;
+					case EntityLegacyIds::PARROT:
+						$id = JavaEntityId::PARROT;
 						break;
-					case 38://Enderman
-						$type = "enderman";
-						$packet->type = 58;
+					case EntityLegacyIds::DOLPHIN:
+						$id = JavaEntityId::DOLPHIN;
 						break;
-					case 39://Silverfish
-						$type = "silverfish";
-						$packet->type = 60;
+					case EntityLegacyIds::ZOMBIE:
+						$id = JavaEntityId::ZOMBIE;
 						break;
-					case 40://CaveSpider
-						$type = "spider";
-						$packet->type = 59;
+					case EntityLegacyIds::CREEPER:
+						$id = JavaEntityId::CREEPER;
 						break;
-					case 41://Ghast
-						$type = "ghast";
-						$packet->type = 56;
+					case EntityLegacyIds::SKELETON:
+						$id = JavaEntityId::SKELETON;
 						break;
-					case 42://Lava Slime
-						$type = "magmacube";
-						$packet->type = 62;
+					case EntityLegacyIds::SPIDER:
+						$id = JavaEntityId::SPIDER;
 						break;
-					case 43://Blaze
-						$type = "blaze";
-						$packet->type = 61;
+					case EntityLegacyIds::ZOMBIE_PIGMAN:
+						$id = JavaEntityId::ZOMBIFIED_PIGLIN;
 						break;
-					case 44://ZombieVillager
-						$type = "zombie_village";
-						$packet->type = 27;
+					case EntityLegacyIds::SLIME:
+						$id = JavaEntityId::SLIME;
 						break;
-					case 45://Witch
-						$type = "witch";
-						$packet->type = 66;
+					case EntityLegacyIds::ENDERMAN:
+						$id = JavaEntityId::ENDERMAN;
 						break;
-					case 46://Stray
-						$type = "stray";
-						$packet->type = 6;
+					case EntityLegacyIds::SILVERFISH:
+						$id = JavaEntityId::SILVERFISH;
 						break;
-					case 47://Husk
-						$type = "husk";
-						$packet->type = 23;
+					case EntityLegacyIds::CAVE_SPIDER:
+						$id = JavaEntityId::CAVE_SPIDER;
 						break;
-					case 48://WitherSkeleton
-						$type = "wither_skeleton";
-						$packet->type = 5;
+					case EntityLegacyIds::GHAST:
+						$id = JavaEntityId::GHAST;
 						break;
-					case 49://Guardian
-						$type = "guardian";
-						$packet->type = 68;
+					case EntityLegacyIds::MAGMA_CUBE:
+						$id = JavaEntityId::MAGMA_CUBE;
 						break;
-					case 50://ElderGuardian
-						$type = "elder_guardian";
-						$packet->type = 4;
+					case EntityLegacyIds::BLAZE:
+						$id = JavaEntityId::BLAZE;
 						break;
-					/*case 52://Wither (Skull)
-						//Spawn Object
-					break;*/
-					case 53://EnderDragon
-						$type = "enderdragon";
-						$packet->type = 63;
+					case EntityLegacyIds::ZOMBIE_VILLAGER:
+						$id = JavaEntityId::ZOMBIE_VILLAGER;
 						break;
-					case 54://Shulker
-						$type = "shulker";
-						$packet->type = 69;
+					case EntityLegacyIds::WITCH:
+						$id = JavaEntityId::WITCH;
 						break;
-					case 61://ArmorStand
-						//Spawn Object
+					case EntityLegacyIds::STRAY:
+						$id = JavaEntityId::STRAY;
+						break;
+					case EntityLegacyIds::HUSK:
+						$id = JavaEntityId::HUSK;
+						break;
+					case EntityLegacyIds::WITHER_SKELETON:
+						$id = JavaEntityId::WITHER_SKELETON;
+						break;
+					case EntityLegacyIds::GUARDIAN:
+						$id = JavaEntityId::GUARDIAN;
+						break;
+					case EntityLegacyIds::ELDER_GUARDIAN:
+						$id = JavaEntityId::ELDER_GUARDIAN;
+						break;
+					case EntityLegacyIds::WITHER:
+						$id = JavaEntityId::WITHER;
+						break;
+					case EntityLegacyIds::ENDER_DRAGON:
+						$id = JavaEntityId::ENDER_DRAGON;
+						break;
+					case EntityLegacyIds::SHULKER:
+						$id = JavaEntityId::SHULKER;
+						break;
+					case EntityLegacyIds::ENDERMITE:
+						$id = JavaEntityId::ENDERMITE;
+						break;
+					case EntityLegacyIds::VINDICATOR:
+						$id = JavaEntityId::VINDICATOR;
+						break;
+					case EntityLegacyIds::PHANTOM:
+						$id = JavaEntityId::PHANTOM;
+						break;
+					case EntityLegacyIds::ARMOR_STAND:
 						$isObject = true;
-						$packet->type = 78;
+						$id = JavaEntityId::ARMOR_STAND;
 						break;
 					/*case 64://Item
 						//Spawn Object
 					break;*/
-					case 65://PrimedTNT
-						//Spawn Object
+					case EntityLegacyIds::TNT:
 						$isObject = true;
-						$packet->type = 50;
+						$id = JavaEntityId::TNT;
 						break;
-					case 66://FallingSand
-						//Spawn Object
+					case EntityLegacyIds::FALLING_BLOCK:
 						$isObject = true;
-						$packet->type = 70;
+						$id = JavaEntityId::FALLING_BLOCK;
 
-						$block = $packet->metadata[2][1];//block data
+						$block = $packet->metadata[2]->getValue();//block data
 						$blockId = $block & 0xff;
 						$blockDamage = $block >> 8;
 
@@ -1309,11 +1303,14 @@ class Translator
 
 						$data = $blockId | ($blockDamage << 12);
 						break;
-					case 68://ThrownExpBottle
-						$isObject = true;
-						$packet->type = 75;
+					case EntityLegacyIds::MOVING_BLOCK:
+						//$id = JavaEntityId::;//TODO:working pistion
 						break;
-					case 69://XPOrb
+					case EntityLegacyIds::XP_BOTTLE:
+						$isObject = true;
+						$id = JavaEntityId::EXPERIENCE_BOTTLE;
+						break;
+					case EntityLegacyIds::XP_ORB:
 						$entity = $player->getPlayer()->getWorld()->getEntity($packet->actorRuntimeId);
 
 						$pk = new SpawnExperienceOrbPacket();
@@ -1321,103 +1318,167 @@ class Translator
 						$pk->x = $packet->position->x;
 						$pk->y = $packet->position->y;
 						$pk->z = $packet->position->z;
-						$pk->count = $entity->namedtag["Value"];
+						$pk->count = $entity->getXpValue();
 
 						return $pk;
-					/*
-					case 71://EnderCrystal
-						//Spawn Object
-					break;
-					case 76://ShulkerBullet
-						//Spawn Object
-					break;*/
-					case 77://FishingHook
-						//Spawn Object
+					case EntityLegacyIds::EYE_OF_ENDER_SIGNAL:
 						$isObject = true;
-						$packet->type = 90;
+						$id = JavaEntityId::EYE_OF_ENDER;
 						break;
-					/*case 79://DragonFireBall
-						//Spawn Object
-					break;*/
-					case 80://Arrow
-						//Spawn Object
+					case EntityLegacyIds::ENDER_CRYSTAL:
 						$isObject = true;
-						$packet->type = 60;
+						$id = JavaEntityId::END_CRYSTAL;
 						break;
-					case 81://Snowball
-						//Spawn Object
+					case EntityLegacyIds::FIREWORKS_ROCKET:
 						$isObject = true;
-						$packet->type = 61;
+						$id = JavaEntityId::FIREWORK_ROCKET;
 						break;
-					case 82://Egg
-						//Spawn Object
+					case EntityLegacyIds::TRIDENT:
 						$isObject = true;
-						$packet->type = 62;
+						$id = JavaEntityId::TRIDENT;
 						break;
-					/*case 83://Painting
-						//Spawn Painting
-					break;
-					case 84://Minecart
-						//Spawn Object
-					break;
-					case 85://GhastFireball
-						//Spawn Object
-					break;
-					case 86://ThrownPotion
-						//Spawn Object
-					break;
-					case 87://EnderPearl
-						//Spawn Object
-					break;
-					case 88://LeashKnot
-						//Spawn Object
-					break;
-					case 89://BlueWitherSkull
-						//Spawn Object
-					break;*/
-					case 90;//Boat
-						$packet->type = 1;
+					case EntityLegacyIds::TURTLE:
+						$id = JavaEntityId::TURTLE;
 						break;
-					case 93://Lightning
-						$pk = AddActorPacket::create(
-							0,
-							Entity::nextRuntimeId(),
-							(new LegacyEntityIdToStringIdMap())->legacyToString(93),
-							$packet->position,
-							null,
-							0.0,
-							0.0,
-							0.0,
-							array_map(function (NetworkAttribute $attr): NetworkAttribute {
-								return new NetworkAttribute($attr->getId(), $attr->getMinValue(), $attr->getMaxValue(), $attr->getValue(), $attr->getDefaultValue());
-							}, []),
-							[],
-							[]
-						);
-						$packets[] = $pk;
-						return $packets;
-					/*case 94://BlazeFireball
-						//Spawn Object
-					break;
-					case 96://Minecart Hopper
-						//Spawn Object
-					break;
-					case 97:Minecart TNT
-						//Spawn Object
-					break;
-					case 98://Minecart Chest
-						//Spawn Object
-					break;*/
+					case EntityLegacyIds::CAT:
+						$id = JavaEntityId::CAT;
+						break;
+					case EntityLegacyIds::SHULKER_BULLET:
+						$isObject = true;
+						$id = JavaEntityId::SHULKER_BULLET;
+						break;
+					case EntityLegacyIds::FISHING_HOOK:
+						$isObject = true;
+						$id = JavaEntityId::FISHING_BOBBER;
+						break;
+					case EntityLegacyIds::DRAGON_FIREBALL:
+						$isObject = true;
+						$id = JavaEntityId::DRAGON_FIREBALL;
+						break;
+					case EntityLegacyIds::ARROW:
+						$isObject = true;
+						$id = JavaEntityId::ARROW;
+						break;
+					case EntityLegacyIds::SNOWBALL:
+						$isObject = true;
+						$id = JavaEntityId::SNOWBALL;
+						break;
+					case EntityLegacyIds::EGG:
+						$isObject = true;
+						$id = JavaEntityId::EGG;
+						break;
+					case EntityLegacyIds::PAINTING:
+						$isObject = true;
+						$id = JavaEntityId::PAINTING;
+						break;
+					case EntityLegacyIds::MINECART:
+						$isObject = true;
+						$id = JavaEntityId::MINECART;
+						break;
+					case EntityLegacyIds::FIREBALL:
+						$isObject = true;
+						$id = JavaEntityId::FIREBALL;
+						break;
+					case EntityLegacyIds::SPLASH_POTION:
+						$isObject = true;
+						$id = JavaEntityId::POTION;
+						break;
+					case EntityLegacyIds::ENDER_PEARL:
+						$isObject = true;
+						$id = JavaEntityId::ENDER_PEARL;
+						break;
+					case EntityLegacyIds::LEASH_KNOT:
+						$isObject = true;
+						$id = JavaEntityId::LEASH_KNOT;
+						break;
+					case EntityLegacyIds::WITHER_SKULL:
+						$isObject = true;
+						$id = JavaEntityId::WITHER_SKULL;
+						break;
+					case EntityLegacyIds::BOAT:
+						$isObject = true;
+						$id = JavaEntityId::BOAT;
+						break;
+					case EntityLegacyIds::WITHER_SKULL_DANGEROUS:
+						$isObject = true;
+						$id = JavaEntityId::WITHER_SKULL;
+						break;
+					case EntityLegacyIds::LIGHTNING_BOLT://Lightning
+						$isObject = true;
+						$id = JavaEntityId::LIGHTNING_BOLT;
+						break;
+					case EntityLegacyIds::SMALL_FIREBALL:
+						$isObject = true;
+						$id = JavaEntityId::SMALL_FIREBALL;
+						break;
+					case EntityLegacyIds::AREA_EFFECT_CLOUD:
+						$isObject = true;
+						$id = JavaEntityId::AREA_EFFECT_CLOUD;
+						break;
+					case EntityLegacyIds::HOPPER_MINECART:
+						$isObject = true;
+						$id = JavaEntityId::HOPPER_MINECART;
+						break;
+					case EntityLegacyIds::TNT_MINECART:
+						$isObject = true;
+						$id = JavaEntityId::TNT_MINECART;
+						break;
+					case EntityLegacyIds::CHEST_MINECART:
+						$isObject = true;
+						$id = JavaEntityId::CHEST_MINECART;
+						break;
+					case EntityLegacyIds::COMMAND_BLOCK_MINECART:
+						$isObject = true;
+						$id = JavaEntityId::COMMAND_BLOCK_MINECART;
+						break;
+					case EntityLegacyIds::LINGERING_POTION:
+						$isObject = true;
+						$id = JavaEntityId::POTION;
+						break;
+					case EntityLegacyIds::LLAMA_SPIT:
+						$isObject = true;
+						$id = JavaEntityId::LLAMA_SPIT;
+						break;
+					case EntityLegacyIds::EVOCATION_FANG:
+						$isObject = true;
+						$id = JavaEntityId::EVOKER_FANGS;
+						break;
+					case EntityLegacyIds::EVOCATION_ILLAGER:
+						$id = JavaEntityId::EVOKER;
+						break;
+					case EntityLegacyIds::VEX:
+						$id = JavaEntityId::VEX;
+						break;
+					case EntityLegacyIds::PUFFERFISH:
+						$id = JavaEntityId::PUFFERFISH;
+						break;
+					case EntityLegacyIds::SALMON:
+						$id = JavaEntityId::SALMON;
+						break;
+					case EntityLegacyIds::DROWNED:
+						$id = JavaEntityId::DROWNED;
+						break;
+					case EntityLegacyIds::TROPICAL_FISH:
+						$id = JavaEntityId::TROPICAL_FISH;
+						break;
+					case EntityLegacyIds::COD:
+						$id = JavaEntityId::COD;
+						break;
+					case EntityLegacyIds::PANDA:
+						$id = JavaEntityId::PANDA;
+						break;
+						//TODO:ADD MORE
 					default:
-						$packet->type = 57;
-						echo "AddEntityPacket: " . $packet->actorRuntimeId . "\n";
+						$isObject = true;
+						$id = JavaEntityId::ARMOR_STAND;
+						echo "AddEntityPacket Eid:" . $packet->actorRuntimeId . "Id: ".$packet->type."\n";
 						break;
 				}
 
 				if ($isObject) {
 					$pk = new SpawnEntityPacket();
 					$pk->entityId = $packet->actorRuntimeId;
-					$pk->type = $packet->type;
+					$pk->type = $id;
 					$pk->uuid = Uuid::uuid4()->getBytes();
 					$pk->x = $packet->position->x;
 					$pk->y = $packet->position->y;
@@ -1432,14 +1493,10 @@ class Translator
 						$pk->velocityZ = 0;
 					}
 					$packets[] = $pk;
-
-					// $pk = new EntityMetadataPacket();
-					// $pk->entityId = $packet->actorRuntimeId;
-					// $pk->metadata = $packet->metadata;
 				} else {
 					$pk = new SpawnLivingEntityPacket();
 					$pk->entityId = $packet->actorRuntimeId;
-					$pk->type = $packet->type;
+					$pk->type = $id;
 					$pk->uuid = Uuid::uuid4()->getBytes();
 					$pk->x = $packet->position->x;
 					$pk->y = $packet->position->y;
@@ -1447,9 +1504,8 @@ class Translator
 					$pk->yaw = $packet->yaw;
 					$pk->pitch = $packet->pitch;
 					$pk->headPitch = 0;
-					$pk->metadata = $packet->metadata;
+					$packets[] = $pk;
 				}
-
 				$packets[] = $pk;
 
 				$pk = new EntityTeleportPacket();
