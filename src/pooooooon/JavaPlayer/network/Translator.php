@@ -1155,13 +1155,13 @@ class Translator
 						$id = JavaEntityId::WOLF;
 						break;
 					case EntityLegacyIds::VILLAGER:
-						$$id = JavaEntityId::VILLAGER;
+						$id = JavaEntityId::VILLAGER;
 						break;
 					case EntityLegacyIds::MOOSHROOM:
-						$$id = JavaEntityId::MOOSHROOM;
+						$id = JavaEntityId::MOOSHROOM;
 						break;
 					case EntityLegacyIds::SQUID:
-						$$id = JavaEntityId::SQUID;
+						$id = JavaEntityId::SQUID;
 						break;
 					case EntityLegacyIds::RABBIT:
 						$id = JavaEntityId::RABBIT;
