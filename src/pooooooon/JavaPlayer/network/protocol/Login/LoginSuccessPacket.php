@@ -46,7 +46,7 @@ class LoginSuccessPacket extends OutboundPacket
 
 	protected function encode(): void
 	{
-		$this->putUUID($this->uuid);
+		$this->put($this->uuid);
 		$this->putString($this->name);
 	}
 
