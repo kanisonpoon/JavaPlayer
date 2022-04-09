@@ -66,12 +66,6 @@ abstract class Packet extends stdClass
 
 	protected abstract function decode(): void;
 
-	public function putUUID(string $uuid)
-	{
-		$this->put(strrev(substr($uuid, 0, 8)));
-		$this->put(strrev(substr($uuid, 8, 8)));
-	}
-
 	protected function getInt(): int
 	{
 		return JavaBinarystream::readInt($this->get(4));
