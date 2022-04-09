@@ -261,7 +261,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 	{
 		if ($this->status === 0) {
 			$this->uuid = $uuid;
-			$this->formattedUUID = JavaBinarystream::UUIDtoString($this->uuid);
+			$this->formattedUUID = Uuid::fromString($this->uuid)->getBytes();
 
 			$this->loader->interface->setCompression($this);
 
