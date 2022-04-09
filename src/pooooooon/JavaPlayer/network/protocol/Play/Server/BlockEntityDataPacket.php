@@ -55,7 +55,7 @@ class BlockEntityDataPacket extends OutboundPacket
 	protected function encode(): void
 	{
 		$this->putPosition($this->x, $this->y, $this->z);
-		$this->putByte($this->actionId);
+		$this->putVarint($this->actionId);
 		$this->put(ConvertUtils::convertNBTDataFromPEtoPC($this->nbtData));
 	}
 }
