@@ -57,7 +57,7 @@ class SpawnPlayerPacket extends OutboundPacket
 	protected function encode(): void
 	{
 		$this->putVarInt($this->entityId);
-		$this->putUUID($this->uuid);
+		$this->put($this->uuid);
 		$this->putDouble($this->x);
 		$this->putDouble($this->y);
 		$this->putDouble($this->z);
