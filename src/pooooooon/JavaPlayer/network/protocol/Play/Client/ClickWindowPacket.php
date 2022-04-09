@@ -38,6 +38,8 @@ class ClickWindowPacket extends InboundPacket
 	/** @var int */
 	public $windowId;
 	/** @var int */
+	public $stateId;
+	/** @var int */
 	public $slot;
 	/** @var int */
 	public $button;
@@ -45,6 +47,8 @@ class ClickWindowPacket extends InboundPacket
 	public $actionNumber;
 	/** @var int */
 	public $mode;
+	/** @var array */
+	public $changedSlots;
 	/** @var Item */
 	public $clickedItem;
 
@@ -56,11 +60,16 @@ class ClickWindowPacket extends InboundPacket
 	protected function decode(): void
 	{
 		$this->windowId = $this->getByte();
-		$this->slot = $this->getSignedShort();
-		$this->button = $this->getSignedByte();
+		$this->stateId = $this->getVarInt();
+		$this->slot = $this->getShort();
+		$this->button = $this->getByte();
 		$this->actionNumber = $this->getSignedShort();
 		$this->mode = $this->getVarInt();
+		for ($i = 0; $i < $this->getVarInt(); $i++) {
+			$slotid = $this->getShort();
+			$item = $this->getSlot();
+			$this->changedSlots[] = [$slotid, $item];
+		}
 		$this->clickedItem = $this->getSlot();
 	}
-
 }
