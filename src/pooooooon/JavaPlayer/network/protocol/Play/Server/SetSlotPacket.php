@@ -38,8 +38,9 @@ class SetSlotPacket extends OutboundPacket
 	/** @var int */
 	public $windowId;
 	/** @var int */
+	public $stateId;
+	/** @var int */
 	public $slot;
-	/** @var Item */
 	public $slotData;
 
 	public function pid(): int
@@ -50,6 +51,7 @@ class SetSlotPacket extends OutboundPacket
 	protected function encode(): void
 	{
 		$this->putByte($this->windowId);
+		$this->putVarInt($this->stateId);
 		$this->putShort($this->slot);
 		$this->putSlot($this->slotData);
 	}
