@@ -450,7 +450,7 @@ final class Loader extends PluginBase implements Listener
 			}
 		}), 1);
 
-		$this->saveResource("players.json");
+		//$this->saveResource("block.json");
 
 		$ip = (string)$this->getConfig()->get("ip") ?? Server::getInstance()->getIp();
 		$port = (int)$this->getConfig()->get("port") ?? 25565;
