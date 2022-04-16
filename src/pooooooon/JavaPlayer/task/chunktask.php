@@ -45,6 +45,8 @@ class chunktask extends AsyncTask
 	{
 		if ($this->chunk !== null) {
 			$chunk = FastChunkSerializer::deserializeTerrain($this->chunk);
+			//TODO: 320 world
+			$isNewChunk = count($chunk->getSubChunks()) === 20;
 			$isFullChunk = count($chunk->getSubChunks()) === 16;
 			$biomes = $chunk->getBiomeIdArray();
 
@@ -75,13 +77,12 @@ class chunktask extends AsyncTask
 							$blockData = $subChunk->getFullBlock($x, $y, $z);
 
 							if ($blockId == BlockLegacyIds::FRAME_BLOCK) {
-								$block = ItemFrameBlockEntity::getItemFrame($this->fetchLocal("player")->getWorld(), $x + ($this->chunkX << 4), $y + ($num << 4), $z + ($this->chunkZ << 4), $blockData, true);
-//                                $block = BlockLegacyIds::AIR;
+								ItemFrameBlockEntity::getItemFrame($this->fetchLocal("player")->getWorld(), $x + ($this->chunkX << 4), $y + ($num << 4), $z + ($this->chunkZ << 4), $blockData, true);
+							        $block = BlockLegacyIds::AIR;
 							} else {
 								if ($blockId !== BlockLegacyIds::AIR) {
 									$blockCount++;
 								}
-//                                $block = $blockId;
 								ConvertUtils::convertBlockData(true, $blockId, $blockData);
 								$stateId = ConvertUtils::getBlockStateIndex($blockId, $blockData);
 								$block = $stateId;
@@ -108,6 +109,7 @@ class chunktask extends AsyncTask
 						for ($x = 0; $x < 16; $x += 2) {
 							$blockLight = 0;
 							$skyLight = 0;
+							//TODO: fix this
 							foreach ($subChunk->getBlockSkyLightArray() as $light) {
 								$blockLight = $light->get($x, $y, $z) | ($light->get($x, $y, $z) << 4);
 							}
@@ -164,6 +166,7 @@ class chunktask extends AsyncTask
 			$heightMaps->setTag("MOTION_BLOCKING", new LongArrayTag($longData));
 
 			$payload1 = "";
+			//TODO:biome
 			for ($i = 0; $i < 256; $i++) {
 				$payload1 .= Binary::writeInt(ord($chunk->getBiomeIdArray()[$i]));
 			}
@@ -178,7 +181,6 @@ class chunktask extends AsyncTask
 			$pk = new ChunkDataPacket();
 			$pk->chunkX = $this->chunkX;
 			$pk->chunkZ = $this->chunkZ;
-			$pk->isFullChunk = $isFullChunk;
 			$pk->primaryBitMask = $chunkBitmask;
 			$pk->heightMaps = $heightMaps;
 			$pk->data = $chunkData;
