@@ -415,10 +415,10 @@ class Translator
 					$pk->z = 0;
 				} else {
 					switch ($packet->type) {
-						case UseEntityPacket::INTERACT: //TODO: add the packet
+						case InteractEntityPacket::TYPE_INTERACT:
 							$actionType = UseItemOnEntityTransactionData::ACTION_INTERACT;
 							break;
-						case UseEntityPacket::ATTACK:
+						case InteractEntityPacket::TYPE_ATTACK:
 							$actionType = UseItemOnEntityTransactionData::ACTION_ATTACK;
 							break;
 						default:
