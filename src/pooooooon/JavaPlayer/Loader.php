@@ -441,7 +441,6 @@ final class Loader extends PluginBase implements Listener
 
 	protected function onEnable(): void
 	{
-
 		$this->registerListener(new DefaultJavaPlayerListener($this));
 		//$this->saveResource("block.json");
 		$ip = (string)$this->getConfig()->get("ip") ?? Server::getInstance()->getIp();
