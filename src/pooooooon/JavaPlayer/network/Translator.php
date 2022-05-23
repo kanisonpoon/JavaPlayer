@@ -421,6 +421,9 @@ class Translator
 						case InteractEntityPacket::TYPE_ATTACK:
 							$actionType = UseItemOnEntityTransactionData::ACTION_ATTACK;
 							break;
+						case InteractEntityPacket::TYPE_INTERACT_AT:
+							$actionType = UseItemOnEntityTransactionData::ACTION_ITEM_INTERACT;
+							break;
 						default:
 							echo "[Translator] UseItemPacket\n";
 							return null;
