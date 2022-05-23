@@ -141,6 +141,7 @@ use pooooooon\javaplayer\network\protocol\Play\Server\EntityAnimationPacket as S
 use pooooooon\javaplayer\network\protocol\Play\Server\EntityEffectPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\EntityEquipmentPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\EntityHeadLookPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\EntityMetadataPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\EntityRotationPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\EntityStatusPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\EntityTeleportPacket;
