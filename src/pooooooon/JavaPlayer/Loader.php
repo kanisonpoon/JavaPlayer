@@ -443,22 +443,10 @@ final class Loader extends PluginBase implements Listener
 	{
 
 		$this->registerListener(new DefaultJavaPlayerListener($this));
-
-		$this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function (): void {
-			foreach ($this->java_players as $player) {
-				$player->tick();
-			}
-		}), 1);
-
 		//$this->saveResource("block.json");
-
 		$ip = (string)$this->getConfig()->get("ip") ?? Server::getInstance()->getIp();
 		$port = (int)$this->getConfig()->get("port") ?? 25565;
-		$motd = (string)$this->getConfig()->get("motd") ?? Server::getInstance()->getMotd();
-		$isUsePmMotd =  (bool)$this->getConfig()->get("UsePmMotd") ?? true;
-		if($isUsePmMotd){
-			$motd = Server::getInstance()->getMotd();
-		}
+		$motd = ((bool)$this->getConfig()->get("UsePmMotd") ?? true) ? Server::getInstance()->getMotd() : ((string)$this->getConfig()->get("motd") ?? "Minecraft: PC server");
 		$this->translator = new Translator();
 		$this->getLogger()->info("Starting Minecraft: PC server on ".($ip === "0.0.0.0" ? "*" : $ip).":".$port." version ".InfoManager::VERSION);
 		$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator, (int)$this->getConfig()->get("network-compression-threshold"), $port, $ip, $motd);
