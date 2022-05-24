@@ -452,7 +452,7 @@ final class Loader extends PluginBase implements Listener
 		$port = (int)$this->getConfig()->get("port") ?? 25565;
 		$motd = ((bool)$this->getConfig()->get("UsePmMotd") ?? true) ? Server::getInstance()->getMotd() : ((string)$this->getConfig()->get("motd") ?? "Minecraft: PC server");
 		$this->translator = new Translator();
-		$this->getLogger()->info("Starting Minecraft: PC server on ".($ip === "0.0.0.0" ? "*" : $ip).":".$port." version ".InfoManager::VERSION);
+		$this->getServer()->getLogger()->info("Starting Minecraft: Java Edition server version ".TextFormat::AQUA."v".InfoManager::VERSION);
 		$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator, (int)$this->getConfig()->get("network-compression-threshold"), $port, $ip, $motd);
 		$this->getServer()->getNetwork()->registerInterface($this->interface);
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
