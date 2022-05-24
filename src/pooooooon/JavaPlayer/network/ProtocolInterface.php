@@ -218,7 +218,7 @@ class ProtocolInterface implements NetworkInterface
 	 */
 	protected function sendPacket(int $target, Packet $packet)
 	{
-		if (true) {
+		if (false) {
 			if ($packet->pid() !== OutboundPacket::KEEP_ALIVE_PACKET) {
 				try {
 					echo "[Send][Interface] 0x" . bin2hex(chr($packet->pid())) . ": " . strlen($packet->write()) . "\n";
@@ -304,7 +304,7 @@ class ProtocolInterface implements NetworkInterface
 	 */
 	protected function handlePacket(JavaPlayerNetworkSession $player, string $payload)
 	{
-		if (true) {
+		if (false) {
 			if (ord($payload[0]) !== InboundPacket::KEEP_ALIVE_PACKET) {//KeepAlivePacket
 				echo "[Receive][Interface] 0x" . bin2hex(chr(ord($payload[0]))) . "\n";
 			}
