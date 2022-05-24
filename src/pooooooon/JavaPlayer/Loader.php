@@ -316,6 +316,11 @@ final class Loader extends PluginBase implements Listener
 	{
 		unset($this->listeners[spl_object_id($listener)]);
 	}
+	
+	public function getJavaPlayerList(): array
+	{
+		return $this->java_players;
+	}
 
 	public function getJavaPlayer(Player $player): ?JavaPlayer
 	{
@@ -359,7 +364,7 @@ final class Loader extends PluginBase implements Listener
 
 		$player = $session->getPlayer();
 		assert($player !== null);
-		$this->java_players[$player->getUniqueId()->getBytes()] = $fake_player = new JavaPlayer($session, $this);
+		$this->java_players[$player->getUniqueId()->getBytes()] = new JavaPlayer($session, $this);
 
 		foreach ($this->listeners as $listener) {
 			$listener->onPlayerAdd($player);
