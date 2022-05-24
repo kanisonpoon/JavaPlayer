@@ -831,12 +831,9 @@ class Translator
 					->setInt("x", (int)$packet->x)
 					->setInt("y", (int)$packet->y)
 					->setInt("z", (int)$packet->z);
-
-				$nbt = new LittleEndianNbtSerializer();
-
 				$pk = new BlockActorDataPacket();
 				$pk->blockPosition = new BlockPosition($packet->x, $packet->y, $packet->z);
-				$pk->nbt = new CacheableNbt($nbt->write($tags));
+				$pk->nbt = new CacheableNbt($tags);
 
 				return $pk;
 
