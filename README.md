@@ -7,10 +7,12 @@ Allows the connection of Minecraft: JE clients to PocketMine servers. Made for P
 
 - Chunks (1.17 - 1.18 convert problem and idk how 1.18 chunk work)
 - Item (wait for chunk)
+- Entity (wait for chunk and 1.19 protocol update for ez convert)
 - Movement (wait for chunk)
 - Block (wait for chunk and block data convert)
 - Gui (hard)
 - Inventory (hard)
+- Basic thing
 
 ## Credits
 - [FakePlayer](https://github.com/Muqsit/FakePlayer) make this project posible
