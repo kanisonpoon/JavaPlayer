@@ -16,7 +16,6 @@ final class JavaPlayerInfo
 	 * @param string $username
 	 * @param Skin $skin
 	 * @param array<string, mixed> $extra_data
-	 * @param array<string, array<string, mixed>> $behaviours
 	 */
 	public function __construct(
 		public UuidInterface $uuid,
@@ -25,6 +24,5 @@ final class JavaPlayerInfo
 		public Skin          $skin,
 		public array         $extra_data
 	)
-	{
-	}
+	{}
 }
