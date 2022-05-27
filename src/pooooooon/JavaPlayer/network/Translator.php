@@ -2662,7 +2662,7 @@ class Translator
 				$pk->name = $packet->objectiveName;
 				return $pk;
 			/*case Info::MODAL_FORM_REQUEST_PACKET: check if he is in then send it
-				/** @var ModalFormRequestPacket $packet */
+				/** @var ModalFormRequestPacket $packet *
 				$formData = json_decode($packet->formData, true);
 				$packets = [];
 				if ($formData["type"] === "form") {
