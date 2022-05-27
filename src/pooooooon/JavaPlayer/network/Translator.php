@@ -1932,14 +1932,14 @@ class Translator
 
 						$id = 37;
 						$addData = [
-							$packet->data
+							$packet->eventData
 						];
 						break;
 					case LevelEvent::ADD_PARTICLE_MASK | ParticleIds::DUST:
 						$isParticle = true;
 						$id = 46;
 						$addData = [
-							$packet->data//TODO: RGBA
+							$packet->eventData //TODO: RGBA
 						];
 						break;
 					/*case LevelEvent::ADD_PARTICLE_MASK | ParticleIds::INK:
