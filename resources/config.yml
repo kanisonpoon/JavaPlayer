@@ -2,7 +2,7 @@
 ip: 0.0.0.0
 port: 25565
 #Sets the server description
-motd: "§bPocketMine-MP server using §6§lJavaPlayer§r§b plugin\n§aConnect to Minecraft: PE servers from PC clients"
+motd: "§bPocketMine-MP server using §6§lJavaPlayer§r§b plugin\n§aConnect to MCBE servers from MCJE"
 #UsePocketMine defalt server description
 UsePmMotd: false
 network-compression-threshold: 256
