@@ -437,7 +437,7 @@ class ProtocolInterface implements NetworkInterface
 	}
 
 	public static function getPacket(int $pid, bool $InOrOut): InboundPacket|OutboundPacket|null{
-		return self::$packet[$pid][$InOrOut];
+		return self::$packet[$pid][$InOrOut] ?? null;
 	}
 
 	public static function getPID(Packet $packet): int|null{
