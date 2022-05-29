@@ -119,7 +119,7 @@ class ProtocolInterface implements NetworkInterface
 		$this->threshold = $threshold;
 		$this->thread = new InfoThread($server->getLogger(), $server->getLoader(), $port, $ip, $motd, $icon);
 		$this->sessions = new SplObjectStorage();
-		// $this->PacketList();
+		$this->PacketList();
 	}
 
 	/**
@@ -321,90 +321,10 @@ class ProtocolInterface implements NetworkInterface
 		$status = $player->status;
 
 		if ($status === 1) {
-			switch ($pid) {
-				case InboundPacket::TELEPORT_CONFIRM_PACKET:
-					$pk = new TeleportConfirmPacket();
-					break;
-				case InboundPacket::CHAT_MESSAGE_PACKET:
-					$pk = new ChatMessagePacket();
-					break;
-				case InboundPacket::CLIENT_STATUS_PACKET:
-					$pk = new ClientStatusPacket();
-					break;
-				case InboundPacket::CLIENT_SETTINGS_PACKET:
-					$pk = new ClientSettingsPacket();
-					break;
-				case InboundPacket::TAB_COMPLETE_PACKET:
-					$pk = new TabCompletePacket();
-					break;
-				case InboundPacket::WINDOW_CONFIRMATION_PACKET:
-					$pk = new WindowConfirmationPacket();
-					break;
-				case InboundPacket::CLICK_WINDOW_PACKET:
-					$pk = new ClickWindowPacket();
-					break;
-				case InboundPacket::CLOSE_WINDOW_PACKET:
-					$pk = new CloseWindowPacket();
-					break;
-				case InboundPacket::PLUGIN_MESSAGE_PACKET:
-					$pk = new PluginMessagePacket();
-					break;
-				case InboundPacket::INTERACT_ENTITY_PACKET:
-					$pk = new InteractEntityPacket();
-					break;
-				case InboundPacket::KEEP_ALIVE_PACKET:
-					$pk = new KeepAlivePacket();
-					break;
-				case InboundPacket::PLAYER_POSITION_PACKET:
-					$pk = new PlayerPositionPacket();
-					break;
-				case InboundPacket::PLAYER_POSITION_AND_ROTATION_PACKET:
-					$pk = new PlayerPositionAndRotationPacket();
-					break;
-				case InboundPacket::PLAYER_ROTATION_PACKET:
-					$pk = new PlayerRotationPacket();
-					break;
-				case InboundPacket::PLAYER_MOVEMENT_PACKET:
-					$pk = new PlayerMovementPacket();
-					break;
-				case InboundPacket::CRAFT_RECIPE_REQUEST_PACKET:
-					$pk = new CraftRecipeRequestPacket();
-					break;
-				case InboundPacket::PLAYER_ABILITIES_PACKET:
-					$pk = new PlayerAbilitiesPacket();
-					break;
-				case InboundPacket::PLAYER_DIGGING_PACKET:
-					$pk = new PlayerDiggingPacket();
-					break;
-				case InboundPacket::ENTITY_ACTION_PACKET:
-					$pk = new EntityActionPacket();
-					break;
-				case InboundPacket::ADVANCEMENT_TAB_PACKET:
-					$pk = new AdvancementTabPacket();
-					break;
-				case InboundPacket::HELD_ITEM_CHANGE_PACKET:
-					$pk = new HeldItemChangePacket();
-					break;
-				case InboundPacket::CREATIVE_INVENTORY_ACTION_PACKET:
-					$pk = new CreativeInventoryActionPacket();
-					break;
-				case InboundPacket::UPDATE_SIGN_PACKET:
-					$pk = new UpdateSignPacket();
-					break;
-				case InboundPacket::ANIMATION_PACKET:
-					$pk = new AnimationPacket();
-					break;
-				case InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET:
-					$pk = new PlayerBlockPlacementPacket();
-					break;
-				case InboundPacket::USE_ITEM_PACKET:
-					$pk = new UseItemPacket();
-					break;
-				default:
-					//if(DEBUG > 4){
-					echo "[Receive][Interface] 0x" . bin2hex(chr($pid)) . " Not implemented\n"; //Debug
-					//}
-					return;
+			$pk = self::getPacket($pid, true);
+			if($pk == null){
+				echo "[Receive][Interface] 0x" . bin2hex(chr($pid)) . " Not implemented\n";
+				return;
 			}
 			$pk->read($payload, $offset);
 			$this->receivePacket($player, $pk);
@@ -425,7 +345,109 @@ class ProtocolInterface implements NetworkInterface
 	
 	private function PacketList(){
 		$packet = [];
-		//TODO:add ALL PACKET
+		$packet[InboundPacket::TELEPORT_CONFIRM_PACKET][true] = new TeleportConfirmPacket();
+		$packet[InboundPacket::CHAT_MESSAGE_PACKET][true] = new ChatMessagePacket();
+		$packet[InboundPacket::CLIENT_STATUS_PACKET][true] = new ClientStatusPacket();
+		$packet[InboundPacket::CLIENT_SETTINGS_PACKET][true] = new ClientSettingsPacket();
+		$packet[InboundPacket::TAB_COMPLETE_PACKET][true] = new TabCompletePacket();
+		$packet[InboundPacket::WINDOW_CONFIRMATION_PACKET][true] = new WindowConfirmationPacket();
+		$packet[InboundPacket::CLICK_WINDOW_PACKET][true] = new ClickWindowPacket();
+		$packet[InboundPacket::CLOSE_WINDOW_PACKET][true] = new CloseWindowPacket();
+		$packet[InboundPacket::PLUGIN_MESSAGE_PACKET][true] = new PluginMessagePacket();
+		$packet[InboundPacket::INTERACT_ENTITY_PACKET][true] = new InteractEntityPacket();
+		$packet[InboundPacket::KEEP_ALIVE_PACKET][true] = new KeepAlivePacket();
+		$packet[InboundPacket::PLAYER_POSITION_PACKET][true] = new PlayerPositionPacket();
+		$packet[InboundPacket::PLAYER_POSITION_AND_ROTATION_PACKET][true] = new PlayerPositionAndRotationPacket();
+		$packet[InboundPacket::PLAYER_ROTATION_PACKET][true] = new PlayerRotationPacket();
+		$packet[InboundPacket::PLAYER_MOVEMENT_PACKET][true] = new PlayerMovementPacket();
+		$packet[InboundPacket::CRAFT_RECIPE_REQUEST_PACKET][true] = new CraftRecipeRequestPacket();
+		$packet[InboundPacket::PLAYER_ABILITIES_PACKET][true] = new PlayerAbilitiesPacket();
+		$packet[InboundPacket::PLAYER_DIGGING_PACKET][true] = new PlayerDiggingPacket();
+		$packet[InboundPacket::ENTITY_ACTION_PACKET][true] = new EntityActionPacket();
+		$packet[InboundPacket::ADVANCEMENT_TAB_PACKET][true] = new AdvancementTabPacket();
+		$packet[InboundPacket::HELD_ITEM_CHANGE_PACKET][true] = new HeldItemChangePacket();
+		$packet[InboundPacket::CREATIVE_INVENTORY_ACTION_PACKET][true] = new CreativeInventoryActionPacket();
+		$packet[InboundPacket::UPDATE_SIGN_PACKET][true] = new UpdateSignPacket();
+		$packet[InboundPacket::ANIMATION_PACKET][true] = new AnimationPacket();
+		$packet[InboundPacket::PLAYER_BLOCK_PLACEMENT_PACKET][true] = new PlayerBlockPlacementPacket();
+		$packet[InboundPacket::USE_ITEM_PACKET][true] = new UseItemPacket();
+		$packet[InboundPacket::LOGIN_START_PACKET][true] = new LoginStartPacket();
+		$packet[InboundPacket::ENCRYPTION_RESPONSE_PACKET][true] = new EncryptionResponsePacket();
+
+		$packet[OutboundPacket::LOGIN_DISCONNECT_PACKET][false] = new LoginDisconnectPacket();
+		$packet[OutboundPacket::ENCRYPTION_REQUEST_PACKET][false] = new EncryptionRequestPacket();
+		$packet[OutboundPacket::LOGIN_SUCCESS_PACKET][false] = new LoginSuccessPacket();
+		$packet[OutboundPacket::SPAWN_ENTITY_PACKET][false] = new SpawnEntityPacket();
+		$packet[OutboundPacket::SPAWN_EXPERIENCE_ORB_PACKET][false] = new SpawnExperienceOrbPacket();
+		$packet[OutboundPacket::SPAWN_LIVING_ENTITY_PACKET][false] = new SpawnLivingEntityPacket();
+		$packet[OutboundPacket::SPAWN_PAINTING_PACKET][false] = new SpawnPaintingPacket();
+		$packet[OutboundPacket::SPAWN_PLAYER_PACKET][false] = new SpawnPlayerPacket();
+		$packet[OutboundPacket::ENTITY_ANIMATION_PACKET][false] = new EntityAnimationPacket();
+		$packet[OutboundPacket::STATISTICS_PACKET][false] = new StatisticsPacket();
+		$packet[OutboundPacket::BLOCK_BREAK_ANIMATION_PACKET][false] = new BlockBreakAnimationPacket();
+		$packet[OutboundPacket::BLOCK_ENTITY_DATA_PACKET][false] = new BlockEntityDataPacket();
+		$packet[OutboundPacket::BLOCK_ACTION_PACKET][false] = new BlockActionPacket();
+		$packet[OutboundPacket::BLOCK_CHANGE_PACKET][false] = new BlockChangePacket();
+		$packet[OutboundPacket::BOSS_BAR_PACKET][false] = new BossBarPacket();
+		$packet[OutboundPacket::SERVER_DIFFICULTY_PACKET][false] = new ServerDifficultyPacket();
+		$packet[OutboundPacket::CHAT_MESSAGE_PACKET][false] = new ServerChatMessagePacket();
+		$packet[OutboundPacket::CLEAR_TITLES_PACKET][false] = new ClearTitlesPacket();
+		$packet[OutboundPacket::TAB_COMPLETE_PACKET][false] = new ServerTabCompletePacket();
+		$packet[OutboundPacket::CLOSE_WINDOW_PACKET][false] = new ServerCloseWindowPacket();
+		$packet[OutboundPacket::WINDOW_ITEMS_PACKET][false] = new WindowItemsPacket();
+		$packet[OutboundPacket::WINDOW_PROPERTY_PACKET][false] = new WindowPropertyPacket();
+		$packet[OutboundPacket::SET_SLOT_PACKET][false] = new SetSlotPacket();
+		$packet[OutboundPacket::PLUGIN_MESSAGE_PACKET][false] = new ServerPluginMessagePacket();
+		$packet[OutboundPacket::NAMED_SOUND_EFFECT_PACKET][false] = new NamedSoundEffectPacket();
+		$packet[OutboundPacket::DISCONNECT_PACKET][false] = new PlayDisconnectPacket();
+		$packet[OutboundPacket::EXPLOSION_PACKET][false] = new ExplosionPacket();
+		$packet[OutboundPacket::UNLOAD_CHUNK_PACKET][false] = new UnloadChunkPacket();
+		$packet[OutboundPacket::CHANGE_GAME_STATE_PACKET][false] = new ChangeGameStatePacket();
+		$packet[OutboundPacket::KEEP_ALIVE_PACKET][false] = new ServerKeepAlivePacket();
+		$packet[OutboundPacket::CHUNK_DATA_PACKET][false] = new ChunkDataPacket();
+		$packet[OutboundPacket::EFFECT_PACKET][false] = new EffectPacket();
+		$packet[OutboundPacket::PARTICLE_PACKET][false] = new ParticlePacket();
+		$packet[OutboundPacket::UPDATE_LIGHT_PACKET][false] = new UpdateLightPacket();
+		$packet[OutboundPacket::JOIN_GAME_PACKET][false] = new JoinGamePacket();
+		$packet[OutboundPacket::MAP_DATA_PACKET][false] = new MapPacket();
+		$packet[OutboundPacket::ENTITY_POSITION_PACKET][false] = new MoveEntityPacket();
+		$packet[OutboundPacket::ENTITY_ROTATION_PACKET][false] = new EntityRotationPacket();
+		$packet[OutboundPacket::OPEN_WINDOW_PACKET][false] = new OpenWindowPacket();
+		$packet[OutboundPacket::OPEN_SIGN_EDITOR_PACKET][false] = new OpenSignEditorPacket();
+		$packet[OutboundPacket::CRAFT_RECIPE_RESPONSE_PACKET][false] = new CraftRecipeResponsePacket();
+		$packet[OutboundPacket::PLAYER_ABILITIES_PACKET][false] = new ServerPlayerAbilitiesPacket();
+		$packet[OutboundPacket::PLAYER_INFO_PACKET][false] = new PlayerInfoPacket();
+		$packet[OutboundPacket::PLAYER_POSITION_AND_LOOK_PACKET][false] = new PlayerPositionAndLookPacket();
+		$packet[OutboundPacket::UNLOCK_RECIPES_PACKET][false] = new UnlockRecipesPacket();
+		$packet[OutboundPacket::DESTROY_ENTITIES_PACKET][false] = new DestroyEntitiesPacket();
+		$packet[OutboundPacket::REMOVE_ENTITY_EFFECT_PACKET][false] = new RemoveEntityEffectPacket();
+		$packet[OutboundPacket::RESPAWN_PACKET][false] = new RespawnPacket();
+		$packet[OutboundPacket::ENTITY_HEAD_LOOK_PACKET][false] = new EntityHeadLookPacket();
+		$packet[OutboundPacket::SELECT_ADVANCEMENT_TAB_PACKET][false] = new SelectAdvancementTabPacket();
+		$packet[OutboundPacket::ACTION_BAR_PACKET][false] = new SetActionBarTextPacket();
+		$packet[OutboundPacket::HELD_ITEM_CHANGE_PACKET][false] = new ServerHeldItemChangePacket();
+		$packet[OutboundPacket::UPDATE_VIEW_POSITION_PACKET][false] = new UpdateViewPositionPacket();
+		$packet[OutboundPacket::UPDATE_VIEW_DISTANCE_PACKET][false] = new UpdateViewDistancePacket();
+		$packet[OutboundPacket::SPAWN_POSITION_PACKET][false] = new SpawnPositionPacket();
+		$packet[OutboundPacket::DISPLAY_SCOREBOARD_PACKET][false] = new DisplayScoreboardPacket();
+		$packet[OutboundPacket::ENTITY_METADATA_PACKET][false] = new EntityMetadataPacket();
+		$packet[OutboundPacket::ENTITY_VELOCITY_PACKET][false] = new EntityVelocityPacket();
+		$packet[OutboundPacket::ENTITY_EQUIPMENT_PACKET][false] = new EntityEquipmentPacket();
+		$packet[OutboundPacket::SET_EXPERIENCE_PACKET][false] = new SetExperiencePacket();
+		$packet[OutboundPacket::UPDATE_HEALTH_PACKET][false] = new UpdateHealthPacket();
+		$packet[OutboundPacket::SCOREBOARD_OBJECTIVE_PACKET][false] = new ScoreboardObjectivePacket();
+		$packet[OutboundPacket::TEAMS_PACKET][false] = new SetPlayerTeamPacket();
+		$packet[OutboundPacket::UPDATE_SCORE_PACKET][false] = new UpdateScorePacket();
+		$packet[OutboundPacket::SET_TITLE_SUBTITLE_PACKET][false] = new SetSubtitleTextPacket();
+		$packet[OutboundPacket::TIME_UPDATE_PACKET][false] = new TimeUpdatePacket();
+		$packet[OutboundPacket::SET_TITLE_TEXT_PACKET][false] = new SetTitleTextPacket();
+		$packet[OutboundPacket::SET_TITLE_TIME_PACKET][false] = new SetTitlesAnimationPacket();
+		$packet[OutboundPacket::SOUND_EFFECT_PACKET][false] = new SoundEffectPacket();
+		$packet[OutboundPacket::COLLECT_ITEM_PACKET][false] = new CollectItemPacket();
+		$packet[OutboundPacket::ENTITY_TELEPORT_PACKET][false] = new EntityTeleportPacket();
+		$packet[OutboundPacket::ADVANCEMENTS_PACKET][false] = new AdvancementsPacket();
+		$packet[OutboundPacket::ENTITY_PROPERTIES_PACKET][false] = new EntityPropertiesPacket();
+		$packet[OutboundPacket::ENTITY_EFFECT_PACKET][false] = new EntityEffectPacket();
 		$packetId = [];
 		foreach($packet as $pid => $pkdata){
 			foreach($pkdata as $type => $pk){
