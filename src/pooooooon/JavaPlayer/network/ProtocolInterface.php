@@ -87,6 +87,10 @@ class ProtocolInterface implements NetworkInterface
 	protected $translator;
 	/** @var InfoThread */
 	protected $thread;
+	/** @var Packet[][] */
+	private static $packet;
+	/** @var int[][] */
+	private static $packetId;
 
 	/**
 	 * @var SplObjectStorage<int>
@@ -115,6 +119,7 @@ class ProtocolInterface implements NetworkInterface
 		$this->threshold = $threshold;
 		$this->thread = new InfoThread($server->getLogger(), $server->getLoader(), $port, $ip, $motd, $icon);
 		$this->sessions = new SplObjectStorage();
+		// $this->PacketList();
 	}
 
 	/**
@@ -416,6 +421,31 @@ class ProtocolInterface implements NetworkInterface
 				$player->disconnect("Unexpected packet $pid", true);
 			}
 		}
+	}
+	
+	private function PacketList(){
+		$packet = [];
+		//TODO:add ALL PACKET
+		$packetId = [];
+		foreach($packet as $pid => $pkdata){
+			foreach($pkdata as $type => $pk){
+				$packetId[(new ReflectionClass($pk))->getShortName()][$type] = $pid;
+			}
+		}
+		self::$packet = $packet;
+		self::$packetId = $packetId;
+	}
+
+	public static function getPacket(int $pid, bool $InOrOut): InboundPacket|OutboundPacket|null{
+		return self::$packet[$pid][$InOrOut];
+	}
+
+	public static function getPID(Packet $packet): int|null{
+		$InOrOut = ($packet instanceof InboundPacket);
+		if(!$InOrOut && !$packet instanceof OutboundPacket){
+			return null;
+		}
+		return self::$packetId[(new ReflectionClass($packet))->getShortName()][$InOrOut];
 	}
 
 	/**
