@@ -399,9 +399,6 @@ class Translator
 						case InteractEntityPacket::TYPE_INTERACT_AT:
 							$actionType = UseItemOnEntityTransactionData::ACTION_ITEM_INTERACT;
 							break;
-						default:
-							echo "[Translator] UseItemPacket\n";
-							return null;
 					}
 					$pk = new InventoryTransactionPacket();
 					$pk->trData = UseItemOnEntityTransactionData::new(
@@ -671,7 +668,6 @@ class Translator
 								$dropItem = clone $newItem;
 								$newItem = VanillaItems::AIR();
 							}
-
 							$actions = [];
 							$action = new NetworkInventoryAction();
 							$action->sourceType = 2;
@@ -1811,7 +1807,7 @@ class Translator
 
 				return null;
 
-			case Info::LEVEL_EVENT_PACKET://TODO
+			case Info::LEVEL_EVENT_PACKET:
 				/** @var LevelEventPacket $packet */
 				$isSoundEffect = false;
 				$isParticle = false;
@@ -2704,7 +2700,7 @@ class Translator
 				return null;
 
 			default:
-				echo "[Send][Translator] 0x" . bin2hex(chr($packet->pid())) . " Not implemented\n";
+// 				echo "[Send][Translator] 0x" . bin2hex(chr($packet->pid())) . " Not implemented\n";
 				return null;
 		}
 	}
