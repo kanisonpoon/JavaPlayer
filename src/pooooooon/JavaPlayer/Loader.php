@@ -414,7 +414,7 @@ final class Loader extends PluginBase implements Listener
 
 	public function isJavaPlayer(Player $player): bool
 	{
-		return isset($this->java_players[$player->getUniqueId()->getBytes()]);
+		return isset($this->javaplayers[$player->getUniqueId()->getBytes()]);
 	}
 
 	/**
