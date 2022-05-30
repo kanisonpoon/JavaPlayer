@@ -44,7 +44,7 @@ final class Loader extends PluginBase implements Listener
 	/** @var JavaPlayerListener[] */
 	private array $listeners = [];
 	/** @var JavaPlayer[] */
-	private array $java_players = [];
+	private array $javaplayers = [];
 
 	/**
 	 * @param string|null $message
@@ -319,12 +319,12 @@ final class Loader extends PluginBase implements Listener
 	
 	public function getJavaPlayerList(): array
 	{
-		return $this->java_players;
+		return $this->javaplayers;
 	}
 
 	public function getJavaPlayer(Player $player): ?JavaPlayer
 	{
-		return $this->java_players[$player->getUniqueId()->getBytes()] ?? null;
+		return $this->javaplayers[$player->getUniqueId()->getBytes()] ?? null;
 	}
 
 	public function addJavaPlayer($uuid, $xuid, $gamertag, Skin $skin, JavaPlayerNetworkSession $j): void
@@ -400,8 +400,8 @@ final class Loader extends PluginBase implements Listener
 			return;
 		}
 
-		$this->java_players[$id]->destroy();
-		unset($this->java_players[$id]);
+		$this->javaplayers[$id]->destroy();
+		unset($this->javaplayers[$id]);
 
 		if ($disconnect) {
 			$player->disconnect("disconnected");
@@ -462,7 +462,7 @@ final class Loader extends PluginBase implements Listener
 	{
 		$this->listeners[spl_object_id($listener)] = $listener;
 		$server = $this->getServer();
-		foreach ($this->java_players as $uuid => $_) {
+		foreach ($this->javaplayers as $uuid => $_) {
 			$listener->onPlayerAdd($server->getPlayerByRawUUID($uuid));
 		}
 	}
