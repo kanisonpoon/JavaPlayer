@@ -50,11 +50,6 @@ final class JavaPlayer
 		return $this->session;
 	}
 
-	public function tick(): void
-	{
-		//TODO:
-	}
-
 	public function getMetadata(string $key, mixed $default = null): mixed
 	{
 		return $this->metadata[$key] ?? $default;
