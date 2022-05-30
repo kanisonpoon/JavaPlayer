@@ -23,6 +23,5 @@ final class JavaPlayerInfo
 		public string        $username,
 		public Skin          $skin,
 		public array         $extra_data
-	)
-	{}
+	){}
 }
