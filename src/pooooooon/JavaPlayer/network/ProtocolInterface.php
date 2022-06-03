@@ -239,6 +239,23 @@ class ProtocolInterface implements NetworkInterface
 		} catch (Throwable $t) {
 		}
 	}
+	
+	/**
+	 * @param JavaPlayerNetworkSession $player
+	 */
+	public function putBufferPacket(JavaPlayerNetworkSession $player, int $pid, string $buffer)
+	{
+		if (isset($this->sessions[$player])) {
+			$target = (int)$this->sessions[$player];
+			$this->sendBufferPacket($target, $pid, $buffer);
+		}
+	}
+
+	protected function sendBufferPacket(int $target, int $pid, string $buffer)//for testing only
+	{ 
+		$data = chr(InfoManager::PACKET_SEND_PACKET) . Binary::writeInt($target) . Binary::writeJavaVarInt($pid) . $buffer;
+		$this->thread->pushMainToThreadPacket($data);
+	}
 
 	/**
 	 * @override
