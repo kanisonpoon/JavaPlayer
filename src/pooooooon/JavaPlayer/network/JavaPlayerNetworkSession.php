@@ -151,6 +151,12 @@ class JavaPlayerNetworkSession extends NetworkSession
 		}
 	}
 	
+	public function syncViewAreaRadius(int $distance) : void{
+		$pk = new UpdateViewDistancePacket();
+		$pk->viewDistance = $distance * 2;
+		$this->putRawPacket($pk);
+	}
+	
 	public function syncViewAreaCenterPoint(Vector3 $newPos, int $viewDistance) : void
 	{
 		$pk = new UpdateViewPositionPacket();
@@ -163,6 +169,36 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->putRawPacket($pk);
 	}
 
+	public function syncAvailableCommands() : void{
+		$buffer = "";
+		$command = Server::getInstance()->getCommandMap()->getCommands();
+		$buffer .= JavaBinarystream::writeJavaVarInt(count($command) * 2 + 1);
+		$buffer .= JavaBinarystream::writeByte(0);
+		$buffer .= JavaBinarystream::writeJavaVarInt(count($command));
+		for ($i = 1; $i <= count($command) * 2; $i++) {
+			$buffer .= JavaBinarystream::writeJavaVarInt($i++);
+		}
+		$i = 1;
+		foreach($command as $name => $command){
+			$buffer .= JavaBinarystream::writeByte(1 | 0x04);
+			$buffer .= JavaBinarystream::writeJavaVarInt(1);
+			$buffer .= JavaBinarystream::writeJavaVarInt($i + 1);
+			$buffer .= JavaBinarystream::writeJavaVarInt(strlen($name)) . $name;
+			$i++;
+			
+			$buffer .= JavaBinarystream::writeByte(2 | 0x04 | 0x10);
+			$buffer .= JavaBinarystream::writeJavaVarInt(1);
+			$buffer .= JavaBinarystream::writeJavaVarInt($i);
+			$buffer .= JavaBinarystream::writeJavaVarInt(strlen("arg")). "arg";
+			$buffer .= JavaBinarystream::writeJavaVarInt(strlen("brigadier:string")) . "brigadier:string";
+			$buffer .= JavaBinarystream::writeJavaVarInt(0);
+			$buffer .= JavaBinarystream::writeJavaVarInt(strlen("minecraft:ask_server")) . "minecraft:ask_server";
+			$i++;
+		}
+		$buffer .= JavaBinarystream::writeJavaVarInt(0);
+		$this->putBufferPacket(OutboundPacket::DECLARE_COMMANDS_PACKET, $buffer);
+	}
+	
 	/*public function startUsingChunk(int $chunkX, int $chunkZ, Closure $onCompletion): void
 	{
 		$task = new chunktask($chunkX, $chunkZ, $this->getPlayer()->getWorld()->getChunk($chunkX, $chunkZ), $this);
