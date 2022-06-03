@@ -102,6 +102,11 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->loader->interface->putRawPacket($this, $packet);
 	}
 
+	public function putBufferPacket(Packet $packet, int $pid, string $buffer)//for test ing
+	{
+		$this->loader->interface->putBufferPacket($this, $pid, $buffer);
+	}
+
 	public function respawn() : void
 	{
 		$pk = new PlayerPositionAndLookPacket();
