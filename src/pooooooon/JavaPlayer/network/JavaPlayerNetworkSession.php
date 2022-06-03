@@ -172,18 +172,28 @@ class JavaPlayerNetworkSession extends NetworkSession
 	public function syncAvailableCommands() : void{
 		$buffer = "";
 		$command = Server::getInstance()->getCommandMap()->getCommands();
-		$buffer .= JavaBinarystream::writeJavaVarInt(count($command) * 2 + 1);
+		$commandCount = 0;
+		foreach($command as $name => $command){
+			if(isset($commandData[$command->getName()]) || !$command->testPermissionSilent($this->getPlayer())){
+				continue;
+			}
+			$commandCount++;
+		}
+		$buffer .= JavaBinarystream::writeJavaVarInt($commandCount * 2 + 1);
 		$buffer .= JavaBinarystream::writeByte(0);
-		$buffer .= JavaBinarystream::writeJavaVarInt(count($command));
-		for ($i = 1; $i <= count($command) * 2; $i++) {
+		$buffer .= JavaBinarystream::writeJavaVarInt($commandCount);
+		for ($i = 1; $i <= $commandCount * 2; $i++) {
 			$buffer .= JavaBinarystream::writeJavaVarInt($i++);
 		}
 		$i = 1;
 		foreach($command as $name => $command){
+			if(isset($commandData[$command->getName()]) || !$command->testPermissionSilent($this->getPlayer())){
+				continue;
+			}
 			$buffer .= JavaBinarystream::writeByte(1 | 0x04);
 			$buffer .= JavaBinarystream::writeJavaVarInt(1);
 			$buffer .= JavaBinarystream::writeJavaVarInt($i + 1);
-			$buffer .= JavaBinarystream::writeJavaVarInt(strlen($name)) . $name;
+			$buffer .= JavaBinarystream::writeJavaVarInt(strlen($command->getName())) . $command->getName();
 			$i++;
 			
 			$buffer .= JavaBinarystream::writeByte(2 | 0x04 | 0x10);
