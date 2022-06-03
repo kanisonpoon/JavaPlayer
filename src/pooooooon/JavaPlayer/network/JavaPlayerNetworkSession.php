@@ -171,14 +171,15 @@ class JavaPlayerNetworkSession extends NetworkSession
 
 	public function syncAvailableCommands() : void{
 		$buffer = "";
-		$command = Server::getInstance()->getCommandMap()->getCommands();
-		$commandCount = 0;
-		foreach($command as $name => $command){
+		$commands = Server::getInstance()->getCommandMap()->getCommands();
+		$commandData = [];
+		foreach($commands as $name => $command){
 			if(isset($commandData[$command->getName()]) || !$command->testPermissionSilent($this->getPlayer())){
 				continue;
 			}
-			$commandCount++;
+			$commandData[] = $command;
 		}
+		$commandCount = count($commandData);
 		$buffer .= JavaBinarystream::writeJavaVarInt($commandCount * 2 + 1);
 		$buffer .= JavaBinarystream::writeByte(0);
 		$buffer .= JavaBinarystream::writeJavaVarInt($commandCount);
@@ -186,10 +187,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 			$buffer .= JavaBinarystream::writeJavaVarInt($i++);
 		}
 		$i = 1;
-		foreach($command as $name => $command){
-			if(isset($commandData[$command->getName()]) || !$command->testPermissionSilent($this->getPlayer())){
-				continue;
-			}
+		foreach($commandData as $command){
 			$buffer .= JavaBinarystream::writeByte(1 | 0x04);
 			$buffer .= JavaBinarystream::writeJavaVarInt(1);
 			$buffer .= JavaBinarystream::writeJavaVarInt($i + 1);
