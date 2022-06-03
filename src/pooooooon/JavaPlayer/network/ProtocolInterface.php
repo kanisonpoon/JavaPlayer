@@ -374,7 +374,7 @@ class ProtocolInterface implements NetworkInterface
 		$packet[InboundPacket::LOGIN_START_PACKET][true] = new LoginStartPacket();
 		$packet[InboundPacket::ENCRYPTION_RESPONSE_PACKET][true] = new EncryptionResponsePacket();
 
-		$packet[OutboundPacket::LOGIN_DISCONNECT_PACKET][false] = new LoginDisconnectPacket();
+		/*$packet[OutboundPacket::LOGIN_DISCONNECT_PACKET][false] = new LoginDisconnectPacket();
 		$packet[OutboundPacket::ENCRYPTION_REQUEST_PACKET][false] = new EncryptionRequestPacket();
 		$packet[OutboundPacket::LOGIN_SUCCESS_PACKET][false] = new LoginSuccessPacket();
 		$packet[OutboundPacket::SPAWN_ENTITY_PACKET][false] = new SpawnEntityPacket();
@@ -447,7 +447,7 @@ class ProtocolInterface implements NetworkInterface
 		$packet[OutboundPacket::ENTITY_TELEPORT_PACKET][false] = new EntityTeleportPacket();
 		$packet[OutboundPacket::ADVANCEMENTS_PACKET][false] = new AdvancementsPacket();
 		$packet[OutboundPacket::ENTITY_PROPERTIES_PACKET][false] = new EntityPropertiesPacket();
-		$packet[OutboundPacket::ENTITY_EFFECT_PACKET][false] = new EntityEffectPacket();
+		$packet[OutboundPacket::ENTITY_EFFECT_PACKET][false] = new EntityEffectPacket();*/
 		$packetId = [];
 		foreach($packet as $pid => $pkdata){
 			foreach($pkdata as $type => $pk){
