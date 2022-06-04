@@ -159,8 +159,8 @@ class Session
 				}
 				$data = [
 					"version" => [
-						"name" => "",
-						"protocol" => 757
+						"name" => "1.18.2",
+						"protocol" => InfoManager::PROTOCOL
 					],
 					"players" => [
 						"max" => $this->manager->getServerData()["MaxPlayers"],
@@ -202,7 +202,7 @@ class Session
 				} elseif ($nextState === 2) {
 					$this->status = -1;
 					var_dump("ok" . $protocol);
-					/*if($protocol < InfoManager::PROTOCOL){
+					if($protocol < InfoManager::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
 						$packet->reason = json_encode(["translate" => "multiplayer.disconnect.outdated_client", "with" => [["text" => infoManager::VERSION]]]);
 						$this->writePacket($packet);
@@ -211,20 +211,6 @@ class Session
 						$packet->reason = json_encode(["translate" => "multiplayer.disconnect.outdated_server", "with" => [["text" => infoManager::VERSION]]]);
 						$this->writePacket($packet);
 					}else{
-						$this->manager->openSession($this);
-						$this->status = 2;
-					}*/
-					if (!in_array($protocol, InfoManager::SUPPORT_PROTOCOL)) {
-						if ($protocol < InfoManager::PROTOCOL) {
-							$packet = new LoginDisconnectPacket();
-							$packet->reason = json_encode(["translate" => "multiplayer.disconnect.outdated_client", "with" => [["text" => infoManager::VERSION]]]);
-							$this->writePacket($packet);
-						} else {
-							$packet = new LoginDisconnectPacket();
-							$packet->reason = json_encode(["translate" => "multiplayer.disconnect.outdated_server", "with" => [["text" => infoManager::VERSION]]]);
-							$this->writePacket($packet);
-						}
-					} else {
 						$this->manager->openSession($this);
 						$this->status = 2;
 					}
