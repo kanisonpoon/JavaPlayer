@@ -21,6 +21,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
+use pocketmine\VersionInfo;
 use pooooooon\javaplayer\info\JavaPlayerInfo;
 use pooooooon\javaplayer\listener\JavaPlayerListener;
 use pooooooon\javaplayer\network\InfoManager;
@@ -45,7 +46,7 @@ final class Loader extends PluginBase implements Listener
 	private array $listeners = [];
 	/** @var JavaPlayer[] */
 	private array $javaplayers = [];
-
+	public static int $POCKETMINE_VERSION;
 	/**
 	 * @param string|null $message
 	 * @param int $type
@@ -443,11 +444,17 @@ final class Loader extends PluginBase implements Listener
 			"profile" => $profile
 		];
 	}
+	
+	public static function getPocketMineVersion(): int
+	{
+		return self::$POCKETMINE_VERSION;
+	}
 
 	protected function onEnable(): void
 	{
 		$this->registerListener(new DefaultJavaPlayerListener($this));
 		//$this->saveResource("block.json");
+		self::$POCKETMINE_VERSION = (int)str_replace(".", "", VersionInfo::BASE_VERSION);
 		$ip = (string)$this->getConfig()->get("ip") ?? Server::getInstance()->getIp();
 		$port = (int)$this->getConfig()->get("port") ?? 25565;
 		$motd = ((bool)$this->getConfig()->get("UsePmMotd") ?? true) ? Server::getInstance()->getMotd() : ((string)$this->getConfig()->get("motd") ?? "Minecraft: PC server");
