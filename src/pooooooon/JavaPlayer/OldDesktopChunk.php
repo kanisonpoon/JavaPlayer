@@ -29,9 +29,7 @@ declare(strict_types=1);
 
 namespace pooooooon\javaplayer;
 
-use pocketmine\block\BlockFactory;
 use pocketmine\block\BlockLegacyIds as Block;
-use pocketmine\block\Block as Blocks;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\world\World as Level;
 use pooooooon\javaplayer\entity\ItemFrameBlockEntity;
@@ -113,10 +111,9 @@ class OldDesktopChunk{
 
 					$data = "";
 					for($x = 0; $x < 16; ++$x){
-						$Block = BlockFactory::getInstance()->fromFullBlock($subChunk->getFullBlock($x, $y, $z));
-						assert($Block instanceof Blocks);
-						$blockId = $Block->getId();
-						$blockData = $Block->getMeta();
+						$Block = $subChunk->getFullBlock($x, $y, $z);
+						$blockId = $Block >> 4;
+						$blockData = $Block & 0xf;
 
 						if($blockId == Block::FRAME_BLOCK){
 							ItemFrameBlockEntity::getItemFrame($this->level, $x + ($this->chunkX << 4), $y + ($num << 4), $z + ($this->chunkZ << 4), $blockData, true);
