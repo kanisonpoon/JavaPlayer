@@ -1,6 +1,7 @@
 name: JavaPlayer
 main: pooooooon\javaplayer\Loader
-api: [4.3.0, 5.0.0]
+api: [4.5.0, 5.0.0]
+mcpe-protocol: 526
 version: 0.0.1
 authors: [VaxPex, Hausemaster, muqsit]
 description: Crossplay in pm4
