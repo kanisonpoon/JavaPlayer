@@ -29,6 +29,7 @@ use pooooooon\javaplayer\network\JavaPlayerNetworkSession;
 use pooooooon\javaplayer\network\protocol\Play\Server\KeepAlivePacket;
 use pooooooon\javaplayer\network\ProtocolInterface;
 use pooooooon\javaplayer\network\Translator;
+use pooooooon\javaplayer\utils\ConvertUtils;
 use Ramsey\Uuid\Uuid;
 use ReflectionMethod;
 use ReflectionProperty;
@@ -453,7 +454,8 @@ final class Loader extends PluginBase implements Listener
 	protected function onEnable(): void
 	{
 		$this->registerListener(new DefaultJavaPlayerListener($this));
-		//$this->saveResource("block.json");
+		$this->saveResource("JavaBlockStates.json");
+		ConvertUtils::loadBlockStateIndex($this->getDataFolder()."JavaBlockStates.json");
 		self::$POCKETMINE_VERSION = (int)str_replace(".", "", VersionInfo::BASE_VERSION);
 		$ip = (string)$this->getConfig()->get("ip") ?? Server::getInstance()->getIp();
 		$port = (int)$this->getConfig()->get("port") ?? 25565;
