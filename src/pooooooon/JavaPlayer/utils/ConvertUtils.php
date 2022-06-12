@@ -300,9 +300,9 @@ class ConvertUtils
 	public static function getBlockStateIndex(int $blockId, int $blockDamage): int
 	{
 		if (!isset(self::$newBlockStateId[$blockId])) {
-			return 0;
+			return self::$newBlockStateId[1][0];//stone
 		}
-		return self::$newBlockStateId[$blockId][0];//TODO: blockDamage
+		return self::$newBlockStateId[$blockId][$blockDamage == 0 ? "df" : $blockDamage] ?? self::$newBlockStateId[1][0];
 	}
 
 	public static function lazyLoad()
