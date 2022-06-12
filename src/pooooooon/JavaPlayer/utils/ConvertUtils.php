@@ -302,7 +302,10 @@ class ConvertUtils
 		if (!isset(self::$newBlockStateId[$blockId])) {
 			return self::$newBlockStateId[1][0];//stone
 		}
-		return self::$newBlockStateId[$blockId][$blockDamage == 0 ? "df" : $blockDamage] ?? self::$newBlockStateId[1][0];
+		if($blockDamage == 0){
+			$blockDamage = self::$newBlockStateId[$blockId]["default"];
+		}
+		return self::$newBlockStateId[$blockId][$blockDamage] ?? self::$newBlockStateId[1][0];
 	}
 
 	public static function lazyLoad()
