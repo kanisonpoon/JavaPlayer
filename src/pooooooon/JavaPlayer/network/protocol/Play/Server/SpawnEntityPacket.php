@@ -80,6 +80,8 @@ class SpawnEntityPacket extends OutboundPacket
 	/** @var float */
 	public $yaw;
 	/** @var float */
+	public $headyaw;
+	/** @var float */
 	public $headyaw = 0;
 	/** @var int */
 	public $data = 0;
@@ -107,14 +109,11 @@ class SpawnEntityPacket extends OutboundPacket
 		$this->putDouble($this->z);
 		$this->putAngle($this->pitch);
 		$this->putAngle($this->yaw);
-		$this->putInt($this->data);
-
-
-		//if($this->sendVelocity){
+		$this->putAngle($this->headyaw);
+		$this->putVarInt($this->data);
 		$this->putShort((int)round($this->velocityX * 8000));
 		$this->putShort((int)round($this->velocityY * 8000));
 		$this->putShort((int)round($this->velocityZ * 8000));
-		//}
 	}
 
 }
