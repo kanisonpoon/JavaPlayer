@@ -36,6 +36,14 @@ class ChatMessagePacket extends InboundPacket
 
 	/** @var string */
 	public $message;
+	/** @var int */
+	public $timestamp;
+	/** @var int */
+	public $salt;
+	//idk
+	public $signature;
+	/** @var bool */
+	public $signed;
 
 	public function pid(): int
 	{
@@ -45,6 +53,10 @@ class ChatMessagePacket extends InboundPacket
 	protected function decode(): void
 	{
 		$this->message = $this->getString();
+/*		$this->timestamp = $this->getLong();
+		$this->salt = $this->getlong();
+// 		$this->signature = $this->get();
+		$this->signed = $this->getBool();*/
 	}
 
 }
