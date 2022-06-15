@@ -1,4 +1,6 @@
 # JavaPlayer
+![JavaPlayer](https://cdn.discordapp.com/attachments/943696635219824680/986587658799165450/JavaPlayer.png?size=4096)
+
 Allows the connection of Minecraft: JE clients to PocketMine servers. Made for PM4 and PM5
 
 # MCJE VER: 1.18.2
