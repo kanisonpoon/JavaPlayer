@@ -13,6 +13,7 @@ Allows the connection of Minecraft: JE clients to PocketMine servers. Made for P
 ## Credits
 - [FakePlayer](https://github.com/Muqsit/FakePlayer) make this project posible
 - [MCJEProtocol](https://github.com/GeyserMC/MCProtocolLib) Java Packet
-- [BigBrother](https://github.com/shoghicp/BigBrother) old shoghi project
+- [BigBrother](https://github.com/shoghicp/BigBrother) old shoghi project (abandoned)
+- [Phpcraft](https://github.com/Phpcraft/core) thank for nbt code (abandoned)
 ## Discord server: 
 https://discord.gg/4JfP4YEcCQ
