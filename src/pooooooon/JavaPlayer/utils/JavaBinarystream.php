@@ -29,11 +29,27 @@ declare(strict_types=1);
 
 namespace pooooooon\javaplayer\utils;
 
+use DomainException;
 use FG\Utility\BigIntegerBcmath;
 use phpseclib\Math\BigInteger;
 use pocketmine\item\ItemFactory;
 use pocketmine\network\mcpe\protocol\types\entity\MetadataProperty;
 use pocketmine\utils\Binary;
+use pocketmine\utils\BinaryStream;
+use pooooooon\javaplayer\nbt\JByteArrayTag;
+use pooooooon\javaplayer\nbt\JByteTag;
+use pooooooon\javaplayer\nbt\JCompoundTag;
+use pooooooon\javaplayer\nbt\JDoubleTag;
+use pooooooon\javaplayer\nbt\JEndTag;
+use pooooooon\javaplayer\nbt\JFloatTag;
+use pooooooon\javaplayer\nbt\JIntArrayTag;
+use pooooooon\javaplayer\nbt\JIntTag;
+use pooooooon\javaplayer\nbt\JListTag;
+use pooooooon\javaplayer\nbt\JLongArrayTag;
+use pooooooon\javaplayer\nbt\JLongTag;
+use pooooooon\javaplayer\nbt\JNBT;
+use pooooooon\javaplayer\nbt\JShortTag;
+use pooooooon\javaplayer\nbt\JStringTag;
 use pooooooon\javaplayer\network\Session;
 use Ramsey\Uuid\Converter\Number\GenericNumberConverter;
 use const pocketmine\DEBUG;
@@ -166,6 +182,76 @@ class JavaBinarystream extends Binary
 		return $m;
 	}
 
+	public static function readNBT(string|BinaryStream $buffer, int $type = 0): JNBT
+	{
+		$stream = ($buffer instanceof BinaryStream) ? $buffer : new BinaryStream($buffer);
+		$inList = $type > 0;
+		if(!$inList) {
+			$type = $stream->getByte();
+		}
+		$name = ($type == 0 || $inList) ? "" : $stream->get($stream->getShort());
+		switch($type) {
+			case JEndTag::ORD:
+				return new JEndTag();
+			case JByteTag::ORD:
+				return new JByteTag($name, $stream->getByte());
+			case JShortTag::ORD:
+				return new JShortTag($name, $stream->getShort());
+			case JIntTag::ORD:
+				return new JIntTag($name, $stream->getInt());
+			case JLongTag::ORD:
+				return new JLongTag($name, $stream->getLong());
+			case JFloatTag::ORD:
+				return new JFloatTag($name, $stream->getFloat());
+			case JDoubleTag::ORD:
+				return new JDoubleTag($name, $stream->getDouble());
+			case JByteArrayTag::ORD:
+				$children_i = $stream->getInt();
+				$children = [];
+				for($i = 0; $i < $children_i; $i++)
+				{
+					array_push($children, $stream->getByte());
+				}
+				return new JByteArrayTag($name, $children);
+			case JStringTag::ORD:
+				return new JStringTag($name, $stream->get($stream->getShort()));
+			case JListTag::ORD:
+				$childType = $stream->getByte();
+				$children_i = $stream->getInt();
+				$children = [];
+				for($i = 0; $i < $children_i; $i++)
+				{
+					array_push($children, self::readNBT($stream, $childType));
+				}
+				return new JListTag($name, $childType, $children);
+			case JCompoundTag::ORD:
+				$children = [];
+				while(!(($tag = self::readNBT($stream)) instanceof JEndTag))
+				{
+					array_push($children, $tag);
+				}
+				return new JCompoundTag($name, $children);
+			case JIntArrayTag::ORD:
+				$children_i = $stream->getInt();
+				$children = [];
+				for($i = 0; $i < $children_i; $i++)
+				{
+					array_push($children, $stream->getInt());
+				}
+				return new JIntArrayTag($name, $children);
+			case JLongArrayTag::ORD:
+				$children_i = $stream->getInt();
+				$children = [];
+				for($i = 0; $i < $children_i; $i++)
+				{
+					array_push($children, $stream->getLong());
+				}
+				return new JLongArrayTag($name, $children);
+			default:
+				throw new DomainException("Unsupported NBT Tag: {$type}");
+		}
+	}
+
 	/**
 	 * @param int $number
 	 * @return string
@@ -186,6 +272,7 @@ class JavaBinarystream extends Binary
 
 		return $encoded;
 	}
+
 
 	/**
 	 * @param string $buffer

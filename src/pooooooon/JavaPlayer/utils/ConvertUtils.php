@@ -54,11 +54,24 @@ use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataFlags;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\network\mcpe\protocol\types\entity\MetadataProperty;
 use pocketmine\block\tile\Tile;
+use pocketmine\nbt\tag\Tag;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\timings\TimingsHandler;
 use pocketmine\utils\Binary;
 use pocketmine\utils\BinaryStream;
 use pooooooon\javaplayer\Loader;
+use pooooooon\javaplayer\nbt\JByteArrayTag;
+use pooooooon\javaplayer\nbt\JByteTag;
+use pooooooon\javaplayer\nbt\JCompoundTag;
+use pooooooon\javaplayer\nbt\JDoubleTag;
+use pooooooon\javaplayer\nbt\JFloatTag;
+use pooooooon\javaplayer\nbt\JIntArrayTag;
+use pooooooon\javaplayer\nbt\JIntTag;
+use pooooooon\javaplayer\nbt\JListTag;
+use pooooooon\javaplayer\nbt\JLongTag;
+use pooooooon\javaplayer\nbt\JNBT;
+use pooooooon\javaplayer\nbt\JShortTag;
+use pooooooon\javaplayer\nbt\JStringTag;
 use pooooooon\javaplayer\network\javadata\JavaTileID;
 use pooooooon\javaplayer\network\javadata\JavaTileName;
 use UnexpectedValueException;
@@ -300,12 +313,9 @@ class ConvertUtils
 	public static function getBlockStateIndex(int $blockId, int $blockDamage): int
 	{
 		if (!isset(self::$newBlockStateId[$blockId])) {
-			return self::$newBlockStateId[1][0];//stone
+			return 0;
 		}
-		if($blockDamage == 0){
-			$blockDamage = self::$newBlockStateId[$blockId]["default"];
-		}
-		return self::$newBlockStateId[$blockId][$blockDamage] ?? self::$newBlockStateId[1][0];
+		return self::$newBlockStateId[$blockId][0];//TODO: blockDamage
 	}
 
 	public static function lazyLoad()
@@ -336,23 +346,21 @@ class ConvertUtils
 	}
 
 	/**
-	 * @param string $buffer
 	 * @param bool $isListTag
 	 * @param int $listTagId
 	 * @return CompoundTag|null
 	 */
-	public static function convertNBTDataFromPCtoPE(string $buffer, $isListTag = false, $listTagId = NBT::TAG_End): ?ImmutableTag
-	{
-		$stream = new BinaryStream($buffer);
+	public static function convertNBTFromPCtoPE(JNBT $JNBT, $isListTag = false, $listTagId = NBT::TAG_End): ?Tag{
 		$nbt = null;
 
 		$name = "";
 		if ($isListTag) {
 			$type = $listTagId;
 		} else {
-			$type = $stream->getByte();
+			$JNBT;
+			$type = $JNBT::ORD;
 			if ($type !== NBT::TAG_End) {
-				$name = $stream->get($stream->getShort());
+				$name = $JNBT->name;
 			}
 		}
 
@@ -361,42 +369,45 @@ class ConvertUtils
 				$nbt = null;
 				break;
 			case NBT::TAG_Byte:
-				$nbt = new ByteTag($stream->getByte());
+				assert($JNBT instanceof JByteTag);
+				$nbt = new ByteTag($JNBT->value);
 				break;
 			case NBT::TAG_Short:
-				$nbt = new ShortTag($stream->getShort());
+				assert($JNBT instanceof JShortTag);
+				$nbt = new ShortTag($JNBT->value);
 				break;
 			case NBT::TAG_Int:
-				$nbt = new IntTag($stream->getInt());
+				assert($JNBT instanceof JIntTag);
+				$nbt = new IntTag(gmp_intval($JNBT->value));
 				break;
 			case NBT::TAG_Long:
-				$nbt = new LongTag($stream->getLong());
+				assert($JNBT instanceof JLongTag);
+				$nbt = new LongTag(gmp_intval($JNBT->value));
 				break;
 			case NBT::TAG_Float:
-				$nbt = new FloatTag($stream->getFloat());
+				assert($JNBT instanceof JFloatTag);
+				$nbt = new FloatTag($JNBT->value);
 				break;
 			case NBT::TAG_Double:
-				$nbt = new DoubleTag(Binary::readDouble($stream->get(8)));
+				assert($JNBT instanceof JDoubleTag);
+				$nbt = new DoubleTag($JNBT->value);
 				break;
 			case NBT::TAG_ByteArray:
+				assert($JNBT instanceof JByteArrayTag);
+				$buffer = $JNBT->write("");
+				$stream = new BinaryStream($buffer);
 				$nbt = new ByteArrayTag($stream->get($stream->getInt()));
 				break;
 			case NBT::TAG_String:
-				$nbt = new StringTag($stream->get($stream->getShort()));
+				assert($JNBT instanceof JStringTag);
+				$nbt = new StringTag($JNBT->value);
 				break;
 			case NBT::TAG_List:
-				$id = $stream->getByte();
-				$count = $stream->getInt();
-
+				assert($JNBT instanceof JListTag);
+				$id = $JNBT->childType;
 				$tags = [];
-				for ($i = 0; $i < $count and !$stream->feof(); $i++) {
-					$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()), true, $id);
-					if ($tag instanceof ImmutableTag) {
-						$stream->setOffset($stream->getOffset() + strlen(self::convertNBTDataFromPEtoPC($tag, true)));
-					} else {
-						$stream->setOffset($stream->getOffset() + 1);
-					}
-
+				foreach($JNBT->children as $child){
+					$tag = self::convertNBTFromPCtoPE($child, true, $id);
 					if ($tag instanceof ImmutableTag) {
 						$tags[] = $tag;
 					}
@@ -405,25 +416,24 @@ class ConvertUtils
 				$nbt = new ListTag($tags, $id);
 				break;
 			case NBT::TAG_Compound:
+				assert($JNBT instanceof JCompoundTag);
 				$tags = [];
-				do {
-					$tag = self::convertNBTDataFromPCtoPE(substr($buffer, $stream->getOffset()));
-					if ($tag instanceof ImmutableTag) {
-						$stream->setOffset($stream->getOffset() + strlen(self::convertNBTDataFromPEtoPC($tag)));
-					} else {
-						$stream->setOffset($stream->getOffset() + 1);
-					}
-
+				foreach($JNBT->children as $child){
+					assert($child instanceof JNBT);
+					$tag = self::convertNBTFromPCtoPE($child);
 					if ($tag instanceof ImmutableTag) {
 						$tags[] = $tag;
 					}
-				} while ($tag !== null and !$stream->feof());
-
+				}
+				$nbt = CompoundTag::create();
 				foreach ($tags as $tag){
-					$nbt = CompoundTag::create()->setTag($name, $tag);
+					$nbt->setTag($name, $tag);
 				}
 				break;
 			case NBT::TAG_IntArray:
+				assert($JNBT instanceof JIntArrayTag);
+				$buffer = $JNBT->write("");
+				$stream = new BinaryStream($buffer);
 				$nbt = new IntArrayTag(unpack("N*", $stream->get($stream->getInt() * 4)));
 				break;
 			//TODO: LongArray
@@ -432,12 +442,17 @@ class ConvertUtils
 		return $nbt;
 	}
 
+	public static function convertNBTDataFromPCtoPE(string $buffer, $isListTag = false, $listTagId = NBT::TAG_End): ?ImmutableTag
+	{
+		return self::convertNBTFromPCtoPE(JavaBinarystream::readNBT($buffer), $isListTag, $listTagId);
+	}
+
 	/**
-	 * @param ImmutableTag $nbt
+	 * @param ImmutableTag|CompoundTag $nbt
 	 * @param bool $isListTag
 	 * @return string converted nbt tag data
 	 */
-	public static function convertNBTDataFromPEtoPC(ImmutableTag $nbt, $isListTag = false): string
+	public static function convertNBTDataFromPEtoPC(ImmutableTag|CompoundTag $nbt, $isListTag = false): string
 	{
 		$stream = new BinaryStream();
 
@@ -445,8 +460,8 @@ class ConvertUtils
 			$stream->putByte($nbt->getType());
 
 			if ($nbt instanceof ImmutableTag) {
-				$stream->putShort(strlen($nbt->getName()));
-				$stream->put($nbt->getName());
+				$stream->putShort(strlen(""));
+				$stream->put("");
 			}
 		}
 
@@ -490,10 +505,10 @@ class ConvertUtils
 			case NBT::TAG_List:
 				assert($nbt instanceof ListTag);
 
-				$count = count($nbt);
+				$count = count($nbt->getValue());
 				$type = $nbt->getTagType();
 
-				foreach ($nbt as $tag) {
+				foreach ($nbt->getValue() as $tag) {
 					if ($tag instanceof ImmutableTag) {
 						if ($type !== $tag->getType()) {
 							throw new UnexpectedValueException("ListTag must consists of tags which types are the same");
@@ -504,7 +519,7 @@ class ConvertUtils
 				$stream->putByte($type);
 				$stream->putInt($count);
 
-				foreach ($nbt as $tag) {
+				foreach ($nbt->getValue() as $tag) {
 					$stream->put(self::convertNBTDataFromPEtoPC($tag, true));
 				}
 				break;
@@ -538,7 +553,7 @@ class ConvertUtils
 		$itemId = $item->getId();
 		$itemDamage = $item->getMeta();
 		$itemCount = $item->getCount();
-		$itemNBT = clone $item->getNamedTag() ?? clone $item->getNbt();
+		$itemNBT = ($item instanceof Item)? clone $item->getNamedTag() : clone $item->getNbt();
 
 		switch ($itemId) {
 			case ItemIds::PUMPKIN:
@@ -807,9 +822,9 @@ class ConvertUtils
 						$newData[3] = [7, true];
 					}
 
-					/*if(((int) $d[1] & (1 << Human::DATA_FLAG_IMMOBILE)) > 0){//TODO
-						//$newData[11] = [0, true];
-					}*/
+					if(((int) $d[1] & (1 << EntityMetadataFlags::IMMOBILE)) > 0){//TODO
+						$newData[11] = [0, true];
+					}
 
 					if (((int)$d[1] & (1 << EntityMetadataFlags::SILENT)) > 0) {
 						$newData[4] = [7, true];
