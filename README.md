@@ -1,17 +1,11 @@
 # JavaPlayer
-![JavaPlayer](https://cdn.discordapp.com/attachments/943696635219824680/986587658799165450/JavaPlayer.png?size=4096)
+Allows the connection of Minecraft: JE clients to PocketMine servers. Made for PM4
 
-Allows the connection of Minecraft: JE clients to PocketMine servers. Made for PM4 and PM5
-
-# MCJE VER: 1.18.2
-# TODO: UPDATE TO 1.19
+# MCJE VER: 1.16.5
 ## Need implemented
 
-- Chunks (1.17 - 1.18 convert problem and idk how 1.18 chunk work)
-- Item (wait for chunk)
-- Entity (wait for chunk)
-- Movement (wait for chunk)
-- Block (wait for chunk and block data convert)
+- Chunks (error)
+- Block (bug)
 - Gui (hard)
 - Inventory (hard)
 - Basic thing
