@@ -35,9 +35,9 @@ use pooooooon\javaplayer\utils\JavaBinarystream as Binary;
 class InfoManager
 {
 
-	const VERSION = "1.19";
-	const PROTOCOL = 759;
-	const SUPPORT_PROTOCOL = [759];
+	const VERSION = "1.16.4";
+	const PROTOCOL = 754;
+	const SUPPORT_PROTOCOL = [self::PROTOCOL];
 
 	/*
 	 * Internal Packet:
@@ -128,7 +128,7 @@ class InfoManager
 	 * @param string $description
 	 * @param string|null $favicon
 	 */
-	public function __construct(InfoThread $thread, int $port, string $interface = "0.0.0.0", string $description = "", string $favicon = null)
+	public function __construct(InfoThread $thread, int $port, string $interface, string $description = "", string $favicon = null)
 	{
 		$this->thread = $thread;
 		$this->description = $description;
@@ -140,6 +140,10 @@ class InfoManager
 
 		$this->logger = $this->thread->getLogger();
 		$this->fp = $this->thread->getInternalSocket();
+
+		if ($interface === "") {
+			$interface = "0.0.0.0";
+		}
 
 		$this->socket = stream_socket_server("tcp://$interface:$port", $errno, $errstr, STREAM_SERVER_LISTEN | STREAM_SERVER_BIND);
 		if (!$this->socket) {

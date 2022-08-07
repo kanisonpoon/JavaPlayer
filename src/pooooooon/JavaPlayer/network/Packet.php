@@ -29,11 +29,15 @@ declare(strict_types=1);
 
 namespace pooooooon\javaplayer\network;
 
+use pocketmine\item\Durable;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\VanillaItems;
+use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStack;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
+use pooooooon\javaplayer\utils\ComputerItem;
+use pooooooon\javaplayer\utils\ConvertUtils;
 use pooooooon\javaplayer\utils\JavaBinarystream;
 use stdClass;
 
@@ -117,30 +121,20 @@ abstract class Packet extends stdClass
 	 */
 	protected function getSlot(): Item
 	{
-		$hasItem = $this->getBool();
-		if ($hasItem === false) { //Empty
+		if ($this->getBool()) { //Empty
 			return VanillaItems::AIR();
 		} else {
-
 			$id = $this->getVarInt();
 			$count = $this->getByte();//count or damage
-			$nbt = $this->get(true);//getNbt
-
-			//var_dump($id.",".$count);
-
-			// $item = new ComputerItem($id);
-			// if($item instanceof Durable){
-			// 	$item->setDamage($count);
-			// }else{
-			// 	$item->setCount($count);
-			// }
-			$item = ItemFactory::getInstance()->get(0, 0, 0);
-			//$itemNBT = ConvertUtils::convertNBTDataFromPCtoPE($nbt);
-			//var_dump($itemNBT);
-			//$item->setCompoundTag($itemNBT);
-
-			//ConvertUtils::convertItemData(false, $item);
-
+			$nbtbuffer = $this->get(true);
+			$item = new ComputerItem($id);
+			($item instanceof Durable) ? $item->setDamage($count) : $item->setCount($count);
+			if($nbtbuffer !== "\x00"){
+				$nbt = JavaBinarystream::readNBT($nbtbuffer);
+				$itemNBT = ConvertUtils::convertNBTFromPCtoPE($nbt);
+				$item->setNamedTag($itemNBT);
+			}
+			ConvertUtils::convertItemData(false, $item);
 			return $item;
 		}
 	}
@@ -160,21 +154,23 @@ abstract class Packet extends stdClass
 		return ord($this->buffer[$this->offset++]);
 	}
 
-	protected function putSlot($item): void
+	protected function putSlot(ItemStack|ItemStackWrapper|Item $item): void
 	{
+		if ($item instanceof Item) {
+			$item = TypeConverter::getInstance()->coreItemStackToNet($item);
+		}
 		if ($item instanceof ItemStackWrapper) {
 			$item = $item->getItemStack();
 		}
 		if ($item instanceof ItemStack) {
-			//ConvertUtils::convertItemData(true, $item);
-
+			ConvertUtils::convertItemData(true, $item);
 			$this->putBool($item !== null);
 			if ($item !== null) {
-				$this->putVarInt(0);//id
+				$this->putVarInt($item->getId());//id
 				$this->putByte($item->getCount());//count
 				if ($item->getNbt() !== null) {
 					$itemNBT = clone $item->getNbt();
-					//$this->put(ConvertUtils::convertNBTDataFromPEtoPC($itemNBT));
+					$this->put(ConvertUtils::convertNBTDataFromPEtoPC($itemNBT));
 				} else {
 					$this->put("\x00");//TAG_End
 				}

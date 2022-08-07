@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace pooooooon\javaplayer\network;
 
 use Closure;
+use pocketmine\block\tile\Spawnable;
 use pocketmine\color\Color;
 use pocketmine\entity\Skin;
 use pocketmine\math\Vector3;
@@ -27,10 +28,13 @@ use pooooooon\javaplayer\network\listener\JavaPlayerPacketListener;
 use pooooooon\javaplayer\network\listener\JavaPlayerSpecificPacketListener;
 use pooooooon\javaplayer\network\protocol\Login\EncryptionResponsePacket;
 use pooooooon\javaplayer\network\protocol\Login\LoginSuccessPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\ChunkDataPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\PlayerPositionAndLookPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\UnloadChunkPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\UpdateLightPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\UpdateViewDistancePacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\UpdateViewPositionPacket;
+use pooooooon\javaplayer\OldDesktopChunk;
 use pooooooon\javaplayer\task\chunktask;
 use pooooooon\javaplayer\utils\JavaBinarystream;
 use Ramsey\Uuid\Nonstandard\Uuid;
@@ -102,7 +106,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->loader->interface->putRawPacket($this, $packet);
 	}
 
-	public function putBufferPacket(Packet $packet, int $pid, string $buffer)//for test ing
+	public function putBufferPacket(int $pid, string $buffer)//for test ing
 	{
 		$this->loader->interface->putBufferPacket($this, $pid, $buffer);
 	}
@@ -206,13 +210,39 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$buffer .= JavaBinarystream::writeJavaVarInt(0);
 		$this->putBufferPacket(OutboundPacket::DECLARE_COMMANDS_PACKET, $buffer);
 	}
-	
-	/*public function startUsingChunk(int $chunkX, int $chunkZ, Closure $onCompletion): void
+
+	public function startUsingChunk(int $chunkX, int $chunkZ, Closure $onCompletion): void
 	{
-		$task = new chunktask($chunkX, $chunkZ, $this->getPlayer()->getWorld()->getChunk($chunkX, $chunkZ), $this);
-		Server::getInstance()->getAsyncPool()->submitTask($task);
-		var_dump("Chunktask -> execute");
-	}*/
+		$blockEntities = [];
+		foreach($this->getPlayer()->getWorld()->getChunk($chunkX, $chunkZ)->getTiles() as $tile){
+			if($tile instanceof Spawnable){
+				$blockEntities[] = clone $tile->getSpawnCompound();
+			}
+		}
+		$chunk = new OldDesktopChunk($this, $chunkX, $chunkZ);
+		$pk = new UpdateLightPacket();
+		$pk->chunkX = $chunkX;
+		$pk->chunkZ = $chunkZ;
+		$pk->skyLightMask = $chunk->getSkyLightBitMask();
+		$pk->blockLightMask = $chunk->getBlockLightBitMask();
+		$pk->emptySkyLightMask = ~$chunk->getSkyLightBitMask();
+		$pk->emptyBlockLightMask = ~$chunk->getBlockLightBitMask();
+		$pk->skyLight = $chunk->getSkyLight();
+		$pk->blockLight = $chunk->getBlockLight();
+		$this->putRawPacket($pk);
+
+		$pk = new ChunkDataPacket();
+		$pk->chunkX = $chunkX;
+		$pk->chunkZ = $chunkZ;
+		$pk->isFullChunk = $chunk->isFullChunk();
+		$pk->primaryBitMask = $chunk->getChunkBitMask();
+		// $pk->heightMaps = $chunk->getHeightMaps()->write("");
+		$pk->biomes = $chunk->getBiomes();
+		$pk->data = $chunk->getChunkData();
+		$pk->blockEntities = $blockEntities;
+		$this->putRawPacket($pk);
+		parent::startUsingChunk($chunkX, $chunkZ, $onCompletion);
+	}
 
 	public function bigBrother_getProperties(): array
 	{
