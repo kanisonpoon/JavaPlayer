@@ -51,7 +51,6 @@ class SetSlotPacket extends OutboundPacket
 	protected function encode(): void
 	{
 		$this->putByte($this->windowId);
-		$this->putVarInt($this->stateId);
 		$this->putShort($this->slot);
 		$this->putSlot($this->slotData);
 	}

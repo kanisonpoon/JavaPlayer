@@ -39,7 +39,7 @@ class PlayDisconnectPacket extends OutboundPacket
 
 	public function pid(): int
 	{
-		return self::DISCONNECT_PACKET;
+		return self::PLAY_DISCONNECT_PACKET;
 	}
 
 	protected function encode(): void

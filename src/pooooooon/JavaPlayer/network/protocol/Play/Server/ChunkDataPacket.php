@@ -31,6 +31,7 @@ namespace pooooooon\javaplayer\network\protocol\Play\Server;
 
 use pocketmine\block\tile\Spawnable;
 use pooooooon\javaplayer\network\OutboundPacket;
+use pooooooon\javaplayer\utils\ConvertUtils;
 
 class ChunkDataPacket extends OutboundPacket
 {
@@ -41,6 +42,8 @@ class ChunkDataPacket extends OutboundPacket
 	public $chunkZ;
 	/** @var string */
 	public $heightMaps;
+	
+	public $isFullChunk = true;
 	/** @var string */
 	public $data;
 	/** @var Spawnable[] */
@@ -69,38 +72,18 @@ class ChunkDataPacket extends OutboundPacket
 	{
 		$this->putInt($this->chunkX);
 		$this->putInt($this->chunkZ);
-		$this->put($this->heightMaps ?? base64_decode("CgAADAAPTU9USU9OX0JMT0NLSU5HAAAAJRMJhMJZLJRKE0mk0mk0mkwTCWSyUSicTRNJpNJpMJhMEslEknE0mk0TSaTCYTCYSxJJpNJpNJpNEwmEwmEslEoTSaTSaTSaTRMJhLJRKJJNE0mk0mk0mEwSyUSiSTSaTRMJhMJhMJhLEokk0mk0mk0TCWSyWSyWShNJpMJhMJhMEslkolEolEoTCWSyWSyWSxKJRKJRKJhMEolEolEolEoSiUSiYTCWShJJJJJJJJJKEolkslEkkkkSCSSSSSSSSRKJJIJBIJBIEgkEkkkkkkoSCQSCQSCQSBIJJJJJJJBIEgkEgkEgkEgSCSSCQSCQSBIJBIJBIJBIEgkEgjkgkEgSCQSCQSCQSRHI5HI5HJBIEgkEgkEgkEgRyORyORyQSAAAAAI5HI5HAA=="));//heightmap
-		//TODO:FIX chunkdata it bug
+		$this->putBool($this->isFullChunk);
+		$this->putVarInt($this->primaryBitMask);
+		$this->put(/*$this->heightMaps ?? */base64_decode("CgAADAAPTU9USU9OX0JMT0NLSU5HAAAAJRMJhMJZLJRKE0mk0mk0mkwTCWSyUSicTRNJpNJpMJhMEslEknE0mk0TSaTCYTCYSxJJpNJpNJpNEwmEwmEslEoTSaTSaTSaTRMJhLJRKJJNE0mk0mk0mEwSyUSiSTSaTRMJhMJhMJhLEokk0mk0mk0TCWSyWSyWShNJpMJhMJhMEslkolEolEoTCWSyWSyWSxKJRKJRKJhMEolEolEolEoSiUSiYTCWShJJJJJJJJJKEolkslEkkkkSCSSSSSSSSRKJJIJBIJBIEgkEkkkkkkoSCQSCQSCQSBIJJJJJJJBIEgkEgkEgkEgSCSSCQSCQSBIJBIJBIJBIEgkEgjkgkEgSCQSCQSCQSRHI5HI5HJBIEgkEgkEgkEgRyORyORyQSAAAAAI5HI5HAA=="));//heightmap
+		if($this->isFullChunk){
+			$this->putVarInt(strlen($this->biomes));
+			$this->put($this->biomes);
+		}
 		$this->putVarInt(strlen($this->data));
 		$this->put($this->data);
-		$this->putVarInt(0);//blockEntities count
-		// $this->putVarInt(count($this->blockEntities));
+		$this->putVarInt(0);
 		// foreach($this->blockEntities as $blockEntity){
-		// 	$this->putByte((($blockEntity->getPosition()->getX() & 15) << 4) | $blockEntity->getPosition()->getZ() & 15);
-		//     $this->putShort($blockEntity->getPosition()->getY());
-		// 	$type = $blockEntity;
-		// 	if ($type == null) {
-		// 		$this->putVarInt(-1);
-		// 	} else {
-		// 		$this->putVarInt($type);
-		// 	}
-		// 	$this->put(ConvertUtils::convertNBTDataFromPEtoPC(ConvertUtils::convertBlockEntity(true, $blockEntity->getSpawnCompound())));
+		// 	$this->put(ConvertUtils::convertNBTDataFromPEtoPC(ConvertUtils::convertBlockEntity(true, $blockEntity)));
 		// }
-		$this->putBool($this->trustEdges);
-		$this->putBitSet([$this->skyLightMask]);
-		$this->putBitSet([$this->blockLightMask]);
-		$this->putBitSet([$this->emptySkyLightMask]);
-		$this->putBitSet([$this->emptyBlockLightMask]);
-
-		$this->putVarInt(count($this->skyLight));
-		foreach ($this->skyLight as $skyLight) {
-			$this->putVarInt(strlen($skyLight));
-			$this->put($skyLight);
-		}
-		$this->putVarInt(count($this->blockLight));
-		foreach ($this->blockLight as $blockLight) {
-			$this->putVarInt(strlen($blockLight));
-			$this->put($blockLight);
-		}
 	}
 }

@@ -29,32 +29,57 @@ declare(strict_types=1);
 
 namespace pooooooon\javaplayer\network\protocol\Play\Server;
 
-use pocketmine\item\Item;
 use pooooooon\javaplayer\network\OutboundPacket;
 
-class WindowItemsPacket extends OutboundPacket
+class SpawnLivingEntityPacket extends OutboundPacket
 {
 
 	/** @var int */
-	public $windowId;
+	public $entityId;
+	/** @var string */
+	public $uuid;
 	/** @var int */
-	public $stateId;
-	/** @var Item[] */
-	public $slotData = [];
-	/** @var Item */
-	public $carriedItem;
+	public $type;
+	/** @var float */
+	public $x;
+	/** @var float */
+	public $y;
+	/** @var float */
+	public $z;
+	/** @var float */
+	public $yaw;
+	/** @var float */
+	public $pitch;
+	/** @var float */
+	public $headPitch;
+	/** @var float */
+	public $velocityX;
+	/** @var float */
+	public $velocityY;
+	/** @var float */
+	public $velocityZ;
+	/** @var array */
+	public $metadata;
 
 	public function pid(): int
 	{
-		return self::WINDOW_ITEMS_PACKET;
+		return self::SPAWN_LIVING_ENTITY_PACKET;
 	}
 
 	protected function encode(): void
 	{
-		$this->putByte($this->windowId);
-		$this->putShort(count($this->slotData));
-		foreach ($this->slotData as $item) {
-			$this->putSlot($item);
-		}
+		$this->putVarInt($this->entityId);
+		$this->put($this->uuid);
+		$this->putVarInt($this->type);
+		$this->putDouble($this->x);
+		$this->putDouble($this->y);
+		$this->putDouble($this->z);
+		$this->putAngle($this->yaw);
+		$this->putAngle($this->pitch);
+		$this->putAngle($this->headPitch);
+		$this->putShort((int)round($this->velocityX * 8000));
+		$this->putShort((int)round($this->velocityY * 8000));
+		$this->putShort((int)round($this->velocityZ * 8000));
 	}
+
 }

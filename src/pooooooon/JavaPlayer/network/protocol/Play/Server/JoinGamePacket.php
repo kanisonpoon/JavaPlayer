@@ -29,7 +29,14 @@ declare(strict_types=1);
 
 namespace pooooooon\javaplayer\network\protocol\Play\Server;
 
+use pooooooon\javaplayer\nbt\JByteTag;
+use pooooooon\javaplayer\nbt\JCompoundTag;
+use pooooooon\javaplayer\nbt\JFloatTag;
+use pooooooon\javaplayer\nbt\JIntTag;
+use pooooooon\javaplayer\nbt\JListTag;
+use pooooooon\javaplayer\nbt\JStringTag;
 use pooooooon\javaplayer\network\OutboundPacket;
+use pooooooon\javaplayer\utils\JavaBinarystream;
 
 class JoinGamePacket extends OutboundPacket
 {
@@ -79,16 +86,15 @@ class JoinGamePacket extends OutboundPacket
 		$this->putByte($this->gamemode);
 		$this->putByte($this->previousGamemode);
 		$this->putVarInt(count($this->worldNames));
-		foreach ($this->worldNames as $worldName) {
+		foreach($this->worldNames as $worldName){
 			$this->putString($worldName);
 		}
-		$this->put(base64_decode("CgAACgAYbWluZWNyYWZ0OmRpbWVuc2lvbl90eXBlCAAEdHlwZQAYbWluZWNyYWZ0OmRpbWVuc2lvbl90eXBlCQAFdmFsdWUKAAAAAQgABG5hbWUAE21pbmVjcmFmdDpvdmVyd29ybGQDAAJpZAAAAAAKAAdlbGVtZW50CAAEbmFtZQATbWluZWNyYWZ0Om92ZXJ3b3JsZAEAC3BpZ2xpbl9zYWZlAAEAB25hdHVyYWwBBQANYW1iaWVudF9saWdodAAAAAAIAAppbmZpbmlidXJuAB8jbWluZWNyYWZ0OmluZmluaWJ1cm5fb3ZlcndvcmxkAQAUcmVzcGF3bl9hbmNob3Jfd29ya3MBAQAMaGFzX3NreWxpZ2h0AQEACWJlZF93b3JrcwEIAAdlZmZlY3RzABNtaW5lY3JhZnQ6b3ZlcndvcmxkAQAJaGFzX3JhaWRzAQMADmxvZ2ljYWxfaGVpZ2h0AAABAAUAEGNvb3JkaW5hdGVfc2NhbGU/gAAAAQAJdWx0cmF3YXJtAAEAC2hhc19jZWlsaW5nAAMABW1pbl95AAAAAAMABmhlaWdodAAAAQAAAAAKABhtaW5lY3JhZnQ6d29ybGRnZW4vYmlvbWUIAAR0eXBlABhtaW5lY3JhZnQ6d29ybGRnZW4vYmlvbWUJAAV2YWx1ZQoAAAABCAAEbmFtZQAQbWluZWNyYWZ0OnBsYWlucwMAAmlkAAAAAAoAB2VsZW1lbnQIAARuYW1lABBtaW5lY3JhZnQ6cGxhaW5zCAANcHJlY2lwaXRhdGlvbgAEcmFpbgUABWRlcHRoPgAAAAUAC3RlbXBlcmF0dXJlP0zMzQUABXNjYWxlPUzMzQUACGRvd25mYWxsPszMzQgACGNhdGVnb3J5AAZwbGFpbnMKAAdlZmZlY3RzBAAJc2t5X2NvbG9yAAAAAAB4p/8EAA93YXRlcl9mb2dfY29sb3IAAAAAAAUFMwQACWZvZ19jb2xvcgAAAAAAwNj/BAALd2F0ZXJfY29sb3IAAAAAAD925AoACm1vb2Rfc291bmQDAAp0aWNrX2RlbGF5AAAXcAUABm9mZnNldEAAAAAIAAVzb3VuZAAWbWluZWNyYWZ0OmFtYmllbnQuY2F2ZQMAE2Jsb2NrX3NlYXJjaF9leHRlbnQAAAAIAAAAAAAA"));
-		$this->put(base64_decode("CgAACAAEbmFtZQATbWluZWNyYWZ0Om92ZXJ3b3JsZAEAC3BpZ2xpbl9zYWZlAAEAB25hdHVyYWwBBQANYW1iaWVudF9saWdodAAAAAAIAAppbmZpbmlidXJuAB8jbWluZWNyYWZ0OmluZmluaWJ1cm5fb3ZlcndvcmxkAQAUcmVzcGF3bl9hbmNob3Jfd29ya3MBAQAMaGFzX3NreWxpZ2h0AQEACWJlZF93b3JrcwEIAAdlZmZlY3RzABNtaW5lY3JhZnQ6b3ZlcndvcmxkAQAJaGFzX3JhaWRzAQMADmxvZ2ljYWxfaGVpZ2h0AAABAAUAEGNvb3JkaW5hdGVfc2NhbGU/gAAAAQAJdWx0cmF3YXJtAAEAC2hhc19jZWlsaW5nAAMABW1pbl95AAAAAAMABmhlaWdodAAAAQAA"));
+		$this->put($this->dimensionCodec);
+		$this->put($this->dimension);
 		$this->putString($this->worldName);
 		$this->putLong($this->hashedSeed);
 		$this->putVarInt($this->maxPlayers);
 		$this->putVarInt($this->viewDistance);
-		$this->putVarInt($this->simulationDistance);
 		$this->putBool($this->reducedDebugInfo);
 		$this->putBool($this->enableRespawnScreen);
 		$this->putBool($this->isDebug);

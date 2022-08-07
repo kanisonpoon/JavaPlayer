@@ -49,7 +49,6 @@ class SpawnPositionPacket extends OutboundPacket
 	protected function encode(): void
 	{
 		$this->putPosition($this->x, $this->y, $this->z);
-		$this->putFloat(0);
 	}
 
 }

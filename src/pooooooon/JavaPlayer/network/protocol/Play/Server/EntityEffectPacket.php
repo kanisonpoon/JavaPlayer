@@ -53,7 +53,7 @@ class EntityEffectPacket extends OutboundPacket
 	protected function encode(): void
 	{
 		$this->putVarInt($this->entityId);
-		$this->putVarInt($this->effectId);
+		$this->putByte($this->effectId);
 		$this->putByte($this->amplifier);
 		$this->putVarInt($this->duration);
 		$this->putByte($this->flags);

@@ -29,32 +29,38 @@ declare(strict_types=1);
 
 namespace pooooooon\javaplayer\network\protocol\Play\Server;
 
-use pocketmine\item\Item;
 use pooooooon\javaplayer\network\OutboundPacket;
 
-class WindowItemsPacket extends OutboundPacket
+class SpawnPaintingPacket extends OutboundPacket
 {
 
 	/** @var int */
-	public $windowId;
+	public $entityId;
+	/** @var string */
+	public $uuid;
 	/** @var int */
-	public $stateId;
-	/** @var Item[] */
-	public $slotData = [];
-	/** @var Item */
-	public $carriedItem;
+	public $motive;
+	/** @var int */
+	public $x;
+	/** @var int */
+	public $y;
+	/** @var int */
+	public $z;
+	/** @var int */
+	public $direction;
 
 	public function pid(): int
 	{
-		return self::WINDOW_ITEMS_PACKET;
+		return self::SPAWN_PAINTING_PACKET;
 	}
 
 	protected function encode(): void
 	{
-		$this->putByte($this->windowId);
-		$this->putShort(count($this->slotData));
-		foreach ($this->slotData as $item) {
-			$this->putSlot($item);
-		}
+		$this->putVarInt($this->entityId);
+		$this->put($this->uuid);
+		$this->putVarInt($this->motive);
+		$this->putPosition($this->x, $this->y, $this->z);
+		$this->putByte($this->direction);
 	}
+
 }

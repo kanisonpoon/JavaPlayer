@@ -65,6 +65,5 @@ class PlayerPositionAndLookPacket extends OutboundPacket
 		$this->putFloat($this->pitch);
 		$this->putByte($this->flags);
 		$this->putVarInt($this->teleportId);
-		$this->putBool($this->dismountVehicle);
 	}
 }
