@@ -7,4 +7,4 @@ motd: "§bPocketMine-MP server using §6§lJavaPlayer§r§b plugin\n§aConnect t
 UsePmMotd: false
 network-compression-threshold: 256
 #Use Mojang services to authenticate players
-online: true
+online: false
