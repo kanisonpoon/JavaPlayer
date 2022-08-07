@@ -33,6 +33,8 @@ use pocketmine\block\BlockLegacyIds as Block;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\world\World as Level;
 use pooooooon\javaplayer\entity\ItemFrameBlockEntity;
+use pooooooon\javaplayer\nbt\JCompoundTag;
+use pooooooon\javaplayer\nbt\JLongArrayTag;
 use pooooooon\javaplayer\nbt\tag\LongArrayTag;
 use pooooooon\javaplayer\network\JavaPlayerNetworkSession;
 use pooooooon\javaplayer\utils\ConvertUtils;
@@ -53,7 +55,7 @@ class OldDesktopChunk{
 	private $isFullChunk = false;
 	/** @var string */
 	private $chunkData;
-	/** @var CompoundTag */
+	/** @var JCompoundTag */
 	private $heightMaps;
 	/** @var string */
 	private $biomes;
@@ -92,6 +94,7 @@ class OldDesktopChunk{
 		$this->isCavesAndCliffs = count($chunk->getSubChunks()) === 24;
 
 		$payload = "";
+		$start = microtime(true);
 		foreach($chunk->getSubChunks() as $num => $subChunk){
 			if($subChunk->isEmptyFast()){
 				continue;
@@ -104,11 +107,10 @@ class OldDesktopChunk{
 			$palette = [];
 			$blockCount = 0;
 			$bitsPerBlock = 8;
-
+			
 			$chunkData = "";
 			for($y = 0; $y < 16; ++$y){
 				for($z = 0; $z < 16; ++$z){
-
 					$data = "";
 					for($x = 0; $x < 16; ++$x){
 						$Block = $subChunk->getFullBlock($x, $y, $z);
@@ -141,7 +143,8 @@ class OldDesktopChunk{
 					}
 				}
 			}
-
+			
+			
 			$blockLightData = "";
 			$skyLightData = "";
 			for($y = 0; $y < 16; ++$y){
@@ -171,31 +174,34 @@ class OldDesktopChunk{
 
 			/* Data Array */
 			$payload .= $chunkData;
+			
 		}
-
+		$end = microtime(true);
+		echo($start - $end."\n");
 		$this->chunkData = $payload;
 	}
 
 	public function generateHeightMaps(){
 		$chunk = $this->level->getChunk($this->chunkX, $this->chunkZ, false);
 
-		$long = 0x00;
-		$longData = [];
-		$shiftCount = 0;
-		foreach($chunk->getHeightMapArray() as $value){
-			$long <<= 9;
-			$long |= ($value & 0x1fff);
-			$shiftCount++;
-			if($shiftCount === 7){
-				$longData[] = $long;
-				$long = 0x00;
-				$shiftCount = 0;
-			}
-		}
-		$longData[] = $long;
+		// $long = 0x00;
+		// $longData = [];
+		// $shiftCount = 0;
+		// foreach($chunk->getHeightMapArray() as $value){
+		// 	$long <<= 9;
+		// 	$long |= ($value & 0x1fff);
+		// 	$shiftCount++;
+		// 	if($shiftCount === 7){
+		// 		$longData[] = $long;
+		// 		$long = 0x00;
+		// 		$shiftCount = 0;
+		// 	}
+		// }
+		// $longData[] = $long;
 
-		$heightMaps = CompoundTag::create()->setTag("MOTION_BLOCKING", new LongArrayTag($longData));
-		$this->heightMaps = $heightMaps;
+		// $motion_blocking = new JLongArrayTag("MOTION_BLOCKING", $longData);
+		// $heightMaps = (new JCompoundTag("", [$motion_blocking]));
+		// $this->heightMaps = $heightMaps;
 
 		$payload = "";
 		for($i = 0; $i < 256; $i++){
@@ -208,7 +214,7 @@ class OldDesktopChunk{
 	 * @return int
 	 */
 	public function getChunkBitMask() : int{
-		return $this->chunkBitmask;
+		return $this->chunkBitmask ?? 1;
 	}
 
 	/**
@@ -225,7 +231,7 @@ class OldDesktopChunk{
 		return $this->chunkData;
 	}
 
-	public function getHeightMaps(): CompoundTag{
+	public function getHeightMaps(): JCompoundTag{
 		return $this->heightMaps;
 	}
 

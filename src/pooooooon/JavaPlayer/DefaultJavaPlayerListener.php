@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace pooooooon\javaplayer;
 
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\convert\GlobalItemTypeDictionary;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\ChangeDimensionPacket;
@@ -84,6 +85,7 @@ final class DefaultJavaPlayerListener implements JavaPlayerListener
 							$player->getId(),
 							PlayerAction::DIMENSION_CHANGE_ACK,
 							BlockPosition::fromVector3($player->getPosition()->floor()),
+							BlockPosition::fromVector3(Vector3::zero()),
 							0
 						);
 

@@ -388,8 +388,7 @@ final class Loader extends PluginBase implements Listener
 		$player = $event->getPlayer();
 		try {
 			$this->removePlayer($player, false);
-		} catch (InvalidArgumentException $e) {
-		}
+		} catch (InvalidArgumentException $e) { }
 	}
 
 	public function removePlayer(Player $player, bool $disconnect = true): void
@@ -453,9 +452,10 @@ final class Loader extends PluginBase implements Listener
 
 	protected function onEnable(): void
 	{
+		ConvertUtils::init();
+		$this->saveResource("blockStateMapping.json", true);
+		ConvertUtils::loadBlockStateIndex($this->getDataFolder()."blockStateMapping.json");
 		$this->registerListener(new DefaultJavaPlayerListener($this));
-		$this->saveResource("JavaBlockStates.json");
-		ConvertUtils::loadBlockStateIndex($this->getDataFolder()."JavaBlockStates.json");
 		self::$POCKETMINE_VERSION = (int)str_replace(".", "", VersionInfo::BASE_VERSION);
 		$ip = (string)$this->getConfig()->get("ip") ?? Server::getInstance()->getIp();
 		$port = (int)$this->getConfig()->get("port") ?? 25565;
