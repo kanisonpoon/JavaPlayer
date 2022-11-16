@@ -50,6 +50,7 @@ use pocketmine\network\mcpe\protocol\PlayStatusPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo as Info;
 use pocketmine\network\mcpe\protocol\RemoveActorPacket;
 use pocketmine\network\mcpe\protocol\RemoveObjectivePacket;
+use pocketmine\network\mcpe\protocol\RequestAbilityPacket;
 use pocketmine\network\mcpe\protocol\SetActorDataPacket;
 use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\network\mcpe\protocol\SetDifficultyPacket;
@@ -97,6 +98,7 @@ use pooooooon\javaplayer\network\protocol\Play\Client\ClientStatusPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\CreativeInventoryActionPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\EntityActionPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\InteractEntityPacket;
+use pooooooon\javaplayer\network\protocol\Play\Client\PlayerAbilitiesPacket as ClientPlayerAbilitiesPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\PlayerBlockPlacementPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\PlayerDiggingPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\PlayerMovementPacket;
@@ -532,13 +534,10 @@ class Translator
 
 				return null;
 
-			// case InboundPacket::PLAYER_ABILITIES_PACKET:
-			// 	/** @var PlayerAbilitiesPacket $packet */
-			// 	$pk = new AdventureSettingsPacket();
-			// 	$pk->targetActorUniqueId = $player->getPlayer()->getId();
-			// 	$pk->setFlag(AdventureSettingsPacket::FLYING, $packet->isFlying);
-
-			// 	return $pk;
+			case InboundPacket::PLAYER_ABILITIES_PACKET:
+				/** @var ClientPlayerAbilitiesPacket $packet */
+				$pk = RequestAbilityPacket::create(RequestAbilityPacket::ABILITY_FLYING, $packet->isFlying);
+				return $pk;
 
 			case InboundPacket::PLAYER_DIGGING_PACKET:
 				/** @var PlayerDiggingPacket $packet */
@@ -2678,6 +2677,21 @@ class Translator
 				}
 				$player->bigBrother_formId = $packet->formId;
 				return $packets;*/
+
+			// case Info::ADVENTURE_SETTINGS_PACKET:
+			// 	/** @var AdventureSettingsPacket $packet */
+			// 	$canFly = $packet->getFlag($packet::ALLOW_FLIGHT);
+			// 	$damageDisabled = $packet->getFlag($packet::WORLD_IMMUTABLE);
+			// 	$isFlying = $packet->getFlag($packet::FLYING);
+
+			// 	$pk = new PlayerAbilitiesPacket();
+			// 	$pk->flyingSpeed = 0.05;
+			// 	$pk->viewModifierField = 0.1;
+			// 	$pk->canFly = $canFly;
+			// 	$pk->damageDisabled = $damageDisabled;
+			// 	$pk->isFlying = $isFlying;
+			// 	$pk->isCreative = (TypeConverter::getInstance()->coreGameModeToProtocol($player->getPlayer()->getGamemode()) & 0x01) > 0;
+			// 	return $pk;
 
 			case Info::UPDATE_ABILITIES_PACKET:
 				/** @var UpdateAbilitiesPacket $packet */
