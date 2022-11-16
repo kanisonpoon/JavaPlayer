@@ -21,7 +21,6 @@ use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\AddItemActorPacket;
 use pocketmine\network\mcpe\protocol\AddPaintingPacket;
 use pocketmine\network\mcpe\protocol\AddPlayerPacket;
-use pocketmine\network\mcpe\protocol\AdventureSettingsPacket;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\BlockActorDataPacket;
 use pocketmine\network\mcpe\protocol\BlockEventPacket;
@@ -82,6 +81,8 @@ use pocketmine\network\mcpe\protocol\types\LevelEvent;
 use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 use pocketmine\network\mcpe\protocol\types\ParticleIds;
 use pocketmine\network\mcpe\protocol\types\PlayerAction;
+use pocketmine\network\mcpe\protocol\types\UpdateAbilitiesPacketLayer;
+use pocketmine\network\mcpe\protocol\UpdateAbilitiesPacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\player\GameMode;
 use pocketmine\Server;
@@ -531,13 +532,13 @@ class Translator
 
 				return null;
 
-			case InboundPacket::PLAYER_ABILITIES_PACKET:
-				/** @var PlayerAbilitiesPacket $packet */
-				$pk = new AdventureSettingsPacket();
-				$pk->targetActorUniqueId = $player->getPlayer()->getId();
-				$pk->setFlag(AdventureSettingsPacket::FLYING, $packet->isFlying);
+			// case InboundPacket::PLAYER_ABILITIES_PACKET:
+			// 	/** @var PlayerAbilitiesPacket $packet */
+			// 	$pk = new AdventureSettingsPacket();
+			// 	$pk->targetActorUniqueId = $player->getPlayer()->getId();
+			// 	$pk->setFlag(AdventureSettingsPacket::FLYING, $packet->isFlying);
 
-				return $pk;
+			// 	return $pk;
 
 			case InboundPacket::PLAYER_DIGGING_PACKET:
 				/** @var PlayerDiggingPacket $packet */
@@ -2677,20 +2678,23 @@ class Translator
 				}
 				$player->bigBrother_formId = $packet->formId;
 				return $packets;*/
-			case Info::ADVENTURE_SETTINGS_PACKET:
-				/** @var AdventureSettingsPacket $packet */
-				$canFly = $packet->getFlag($packet::ALLOW_FLIGHT);
-				$damageDisabled = $packet->getFlag($packet::WORLD_IMMUTABLE);
-				$isFlying = $packet->getFlag($packet::FLYING);
 
+			case Info::UPDATE_ABILITIES_PACKET:
+				/** @var UpdateAbilitiesPacket $packet */
+				$data = $packet->getabilityLayers()[0];
+				$BoolAbilities = $data->getBoolAbilities();
+				$isFlying = $BoolAbilities[UpdateAbilitiesPacketLayer::ABILITY_FLYING];
+				$canFly = $BoolAbilities[UpdateAbilitiesPacketLayer::ABILITY_ALLOW_FLIGHT];
+				$damageDisabled = $BoolAbilities[UpdateAbilitiesPacketLayer::ABILITY_INVULNERABLE];
 				$pk = new PlayerAbilitiesPacket();
-				$pk->flyingSpeed = 0.05;
+				$pk->flyingSpeed = $data->getFlySpeed();
 				$pk->viewModifierField = 0.1;
 				$pk->canFly = $canFly;
 				$pk->damageDisabled = $damageDisabled;
 				$pk->isFlying = $isFlying;
 				$pk->isCreative = (TypeConverter::getInstance()->coreGameModeToProtocol($player->getPlayer()->getGamemode()) & 0x01) > 0;
 				return $pk;
+
 			case Info::RESOURCE_PACKS_INFO_PACKET:
 			case Info::RESPAWN_PACKET:
 			case Info::AVAILABLE_COMMANDS_PACKET:
