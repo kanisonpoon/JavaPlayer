@@ -177,14 +177,10 @@ class Session
 				$data = Binary::writeJavaVarInt(0x00) . Binary::writeJavaVarInt(strlen($data)) . $data;
 				$this->writeRaw($data);
 			} elseif ($pid === 0x01) {
-				$p = new JavaBinarystream();
-				$packet = "";
-				$packet .= $p::writeJavaVarInt(0x01);
-				$packet .= $p::writeLong(69420);
-				$this->writeRaw($packet);
+				$packet = new PingPacket();
+				$packet->read($buffer, $offset);
+				$this->writePacket($packet);
 				$this->status = -1;
-			} else {
-				var_dump("hmm");
 			}
 		} elseif ($this->status === 0) {
 			$pid = Binary::readComputerVarInt($buffer, $offset);
