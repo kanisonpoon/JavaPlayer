@@ -62,19 +62,16 @@ class Session
 	 */
 	public function writeRaw(string $data): void
 	{
-		if ($this->threshold === null) {
-			$this->write(Binary::writeJavaVarInt(strlen($data)) . $data);
-		} else {
+		if ($this->threshold !== null) {
 			$dataLength = strlen($data);
 			if ($dataLength >= $this->threshold) {
 				$data = zlib_encode($data, ZLIB_ENCODING_DEFLATE, 7);
 			} else {
 				$dataLength = 0;
 			}
-
 			$data = Binary::writeJavaVarInt($dataLength) . $data;
-			$this->write(Binary::writeJavaVarInt(strlen($data)) . $data);
 		}
+		$this->write(Binary::writeJavaVarInt(strlen($data)) . $data);
 	}
 
 	/**
