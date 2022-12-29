@@ -79,11 +79,7 @@ class Session
 	 */
 	public function write(string $data): void
 	{
-		if ($this->encryptionEnabled) {
-			@fwrite($this->socket, $this->aes->encrypt($data));
-		} else {
-			@fwrite($this->socket, $data);
-		}
+	    	@fwrite($this->socket, $this->encryptionEnabled ? $this->aes->encrypt($data) : $data);
 	}
 
 	/**
