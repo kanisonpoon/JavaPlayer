@@ -98,6 +98,7 @@ use pooooooon\javaplayer\network\protocol\Play\Client\ClientStatusPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\CreativeInventoryActionPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\EntityActionPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\InteractEntityPacket;
+use pooooooon\javaplayer\network\protocol\Play\Client\KeepAlivePacket as ClientKeepAlivePacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\PlayerAbilitiesPacket as ClientPlayerAbilitiesPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\PlayerBlockPlacementPacket;
 use pooooooon\javaplayer\network\protocol\Play\Client\PlayerDiggingPacket;
@@ -419,9 +420,11 @@ class Translator
 				return $pk;
 
 			case InboundPacket::KEEP_ALIVE_PACKET:
+				assert($packet instanceof ClientKeepAlivePacket);
 				$pk = new KeepAlivePacket();
-				$pk->keepAliveId = mt_rand();
+				$pk->keepAliveId = date_create()->format('Uv');
 				$player->putRawPacket($pk);
+				$player->updatePing($pk->keepAliveId - $packet->keepAliveId);
 
 				return null;
 
@@ -446,8 +449,6 @@ class Translator
 					return null;
 				}
 
-				$packets = [];
-
 				$position = new Vector3($packet->x, $packet->feetY + $player->getPlayer()->getEyeHeight(), $packet->z);
 				$newPos = $position->round(4)->subtract(0, 1.62, 0);
 				// $curPos = $player->getPlayer()->getLocation();
@@ -464,7 +465,7 @@ class Translator
 				$player->getPlayer()->handleMovement($newPos);
 				
 
-				return $packets;
+				return null;
 
 			case InboundPacket::PLAYER_POSITION_AND_ROTATION_PACKET:
 				
