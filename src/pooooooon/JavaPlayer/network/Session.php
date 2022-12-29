@@ -159,7 +159,7 @@ class Session
 				}
 				$data = [
 					"version" => [
-						"name" => "1.18.2",
+						"name" => "1.16.5",
 						"protocol" => InfoManager::PROTOCOL
 					],
 					"players" => [
