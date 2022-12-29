@@ -228,14 +228,11 @@ class Session
 	{
 		$data = @fread($this->socket, $len);
 		if ($data !== false) {
-			if ($this->encryptionEnabled) {
-				if (strlen($data) > 0) {
-					return $this->aes->decrypt($data);
-				}
+			if ($this->encryptionEnabled && strlen($data) > 0) {
+				return $this->aes->decrypt($data);
 			}
 			return $data;
 		}
-
 		return "";
 	}
 
