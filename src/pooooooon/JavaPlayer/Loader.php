@@ -10,6 +10,7 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\network\mcpe\convert\GlobalItemTypeDictionary;
 use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackClientResponsePacket;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
@@ -18,8 +19,11 @@ use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\player\Player;
 use pocketmine\player\XboxLivePlayerInfo;
 use pocketmine\plugin\PluginBase;
+use pocketmine\promise\Promise;
+use pocketmine\promise\PromiseResolver;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
+use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\TextFormat;
 use pocketmine\VersionInfo;
 use pooooooon\javaplayer\info\JavaPlayerInfo;
@@ -334,7 +338,7 @@ final class Loader extends PluginBase implements Listener
 		$this->addPlayer(new JavaPlayerInfo(Uuid::fromString($uuid), $xuid, $gamertag, $skin, $data["extra_data"] ?? []), $j);
 	}
 
-	public function addPlayer(JavaPlayerInfo $info, JavaPlayerNetworkSession $jn): Player
+	public function addPlayer(JavaPlayerInfo $info, JavaPlayerNetworkSession $jn): Promise
 	{
 		$server = $this->getServer();
 		$network = $server->getNetwork();
@@ -359,24 +363,31 @@ final class Loader extends PluginBase implements Listener
 		$serializer = PacketSerializer::encoder(new PacketSerializerContext(GlobalItemTypeDictionary::getInstance()->getDictionary()));
 		$pk->encode($serializer);
 		$session->handleDataPacket($pk, $serializer->getBuffer());
+		// Create a new promise, to make sure a FakePlayer is always
+		// registered before the caller's onCompletion is called.
+		$playerResolver = new PromiseResolver;
+		$session->getPlayerPromise()->onCompletion(
+			function (Player $player) use ($info, $session, $playerResolver, $jn) {
+				$pk = new KeepAlivePacket();
+				$pk->keepAliveId = mt_rand();
+				$jn->putRawPacket($pk);
 
-		$pk = new KeepAlivePacket();
-		$pk->keepAliveId = mt_rand();
-		$jn->putRawPacket($pk);
+				$player = $session->getPlayer();
+				assert($player !== null);
+				$this->java_players[$player->getUniqueId()->getBytes()] = new JavaPlayer($session, $this);
 
-		$player = $session->getPlayer();
-		assert($player !== null);
-		$this->java_players[$player->getUniqueId()->getBytes()] = new JavaPlayer($session, $this);
+				foreach ($this->listeners as $listener) {
+					$listener->onPlayerAdd($player);
+				}
 
-		foreach ($this->listeners as $listener) {
-			$listener->onPlayerAdd($player);
-		}
-
-		if (!$player->isAlive()) {
-			$player->respawn();
-		}
-
-		return $player;
+				if (!$player->isAlive()) {
+					$player->respawn();
+				}
+				$playerResolver->resolve($player);
+			},
+			static fn() => throw new AssumptionFailedError("FakePlayerNetworkSession::getPlayerPromise() shouldn't reject")
+		);
+		return $playerResolver->getPromise();
 	}
 
 	/**
