@@ -285,4 +285,29 @@ class JavaData {
 	public const TILEI_CAMPFIRE = 31;
 	public const TILEI_BEEHIVE = 32;
 	public const TILEI_SCULK_SENSOR = 33;
+	
+	public const INV_9x1 = [0, "minecraft:generic_9x1"];
+	public const INV_9x2 = [1, "minecraft:generic_9x2"];
+	public const INV_9x3 = [2, "minecraft:generic_9x3"];
+	public const INV_9x4 = [3, "minecraft:generic_9x4"];
+	public const INV_9x5 = [4, "minecraft:generic_9x5"];
+	public const INV_9x6 = [5, "minecraft:generic_9x6"];
+	public const INV_3x3 = [6, "minecraft:generic_3x3"];
+	public const INV_ANVIL = [7, "minecraft:anvil"];
+	public const INV_BEACON = [8, "minecraft:beacon"];
+	public const INV_BLAST_FURNACE = [9, "minecraft:blast_furnace"];
+	public const INV_BREWING_STAND = [10, "minecraft:brewing_stand"];
+	public const INV_WORKBENCH = [11, "minecraft:crafting"];
+	public const INV_ENCHANTMENT = [12, "minecraft:enchantment"];
+	public const INV_FURNACE = [13, "minecraft:furnace"];
+	public const INV_GRINDSTONE = [14, "minecraft:grindstone"];
+	public const INV_HOPPER = [15, "minecraft:hopper"];
+	public const INV_LECTERN = [16, "minecraft:lectern"];
+	public const INV_LOOM = [17, "minecraft:loom"];
+	public const INV_TRADING = [18, "minecraft:merchant"];
+	public const INV_SHULKER_BOX = [19, "minecraft:shulker_box"];
+	public const INV_SMITHING_TABLE = [20, "minecraft:smithing"];
+	public const INV_SMOKER = [21, "minecraft:smoker"];
+	public const INV_CARTOGRAPHY = [22, "minecraft:cartography"];
+	public const INV_STONECUTTER = [23, "minecraft:stonecutter"];
 }
