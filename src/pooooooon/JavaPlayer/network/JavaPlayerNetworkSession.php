@@ -15,6 +15,7 @@ use pocketmine\entity\Skin;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\compression\Compressor;
+use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\PacketBroadcaster;
 use pocketmine\network\mcpe\PacketSender;
@@ -22,6 +23,7 @@ use pocketmine\network\mcpe\protocol\ClientboundPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\NetworkSessionManager;
 use pocketmine\permission\DefaultPermissions;
+use pocketmine\player\GameMode;
 use pocketmine\player\Player;
 use pocketmine\promise\Promise;
 use pocketmine\promise\PromiseResolver;
@@ -29,6 +31,7 @@ use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 use pocketmine\utils\BinaryStream;
 use pocketmine\utils\Internet;
+use pocketmine\world\Position;
 use pocketmine\world\World;
 use pooooooon\javaplayer\JavaPlayer;
 use pooooooon\javaplayer\Loader;
@@ -36,6 +39,7 @@ use pooooooon\javaplayer\network\listener\JavaPlayerPacketListener;
 use pooooooon\javaplayer\network\listener\JavaPlayerSpecificPacketListener;
 use pooooooon\javaplayer\network\protocol\Login\EncryptionResponsePacket;
 use pooooooon\javaplayer\network\protocol\Login\LoginSuccessPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\ChangeGameStatePacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\ChunkDataPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\CollectItemPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\EntityEquipmentPacket;
@@ -43,6 +47,8 @@ use pooooooon\javaplayer\network\protocol\Play\Server\EntityStatusPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\HeldItemChangePacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\PlayerAbilitiesPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\PlayerPositionAndLookPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\SpawnPositionPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\TimeUpdatePacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\UnloadChunkPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\UpdateLightPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\UpdateViewDistancePacket;
@@ -77,6 +83,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 		"ChatColor" => true,
 		"SkinSettings" => 0,
 	];
+	// private ?JavaInventoryManager $invManager = null;
 
 	public function __construct(Server $server, NetworkSessionManager $manager, PacketPool $packetPool, PacketSender $sender, PacketBroadcaster $broadcaster, Compressor $compressor, string $ip, int $port, Loader $loader)
 	{
@@ -287,6 +294,39 @@ class JavaPlayerNetworkSession extends NetworkSession
 	public function bigBrother_getProperties(): array
 	{
 		return $this->bigBrother_properties;
+	}
+
+	public function syncGameMode(GameMode $mode, bool $isRollback = false) : void{
+		$val = TypeConverter::getInstance()->coreGameModeToProtocol($mode);
+		$pk = new ChangeGameStatePacket();
+		$pk->reason = 3;
+		if($val == 9){
+			$val = 3;
+		}
+		$pk->value = $val;
+		$this->putRawPacket($pk);
+		if($this->getPlayer() !== null){
+			$this->syncAbilities($this->getPlayer());
+		}
+	}
+
+	public function syncWorldTime(int $worldTime) : void{
+		$pk = new TimeUpdatePacket();
+		$pk->worldAge = 0;
+		$pk->dayTime = $worldTime;
+		$this->putRawPacket($pk);
+	}
+
+	public function syncPlayerSpawnPoint(Position $newSpawn) : void{
+		$pk = new SpawnPositionPacket();
+		$pk->x = $newSpawn->getX();
+		$pk->y = $newSpawn->getY();
+		$pk->z = $newSpawn->getZ();
+		$this->putRawPacket($pk);
+	}
+
+	public function syncWorldSpawnPoint(Position $newSpawn) : void{
+		$this->syncPlayerSpawnPoint($newSpawn);
 	}
 
 	/**
