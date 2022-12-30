@@ -7,6 +7,10 @@ namespace pooooooon\javaplayer\network;
 use Closure;
 use pocketmine\block\tile\Spawnable;
 use pocketmine\color\Color;
+use pocketmine\entity\Entity;
+use pocketmine\entity\Human;
+use pocketmine\entity\Living;
+use pocketmine\entity\object\ItemEntity;
 use pocketmine\entity\Skin;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
@@ -17,6 +21,10 @@ use pocketmine\network\mcpe\PacketSender;
 use pocketmine\network\mcpe\protocol\ClientboundPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\NetworkSessionManager;
+use pocketmine\permission\DefaultPermissions;
+use pocketmine\player\Player;
+use pocketmine\promise\Promise;
+use pocketmine\promise\PromiseResolver;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 use pocketmine\utils\BinaryStream;
@@ -29,6 +37,11 @@ use pooooooon\javaplayer\network\listener\JavaPlayerSpecificPacketListener;
 use pooooooon\javaplayer\network\protocol\Login\EncryptionResponsePacket;
 use pooooooon\javaplayer\network\protocol\Login\LoginSuccessPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\ChunkDataPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\CollectItemPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\EntityEquipmentPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\EntityStatusPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\HeldItemChangePacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\PlayerAbilitiesPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\PlayerPositionAndLookPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\UnloadChunkPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\UpdateLightPacket;
@@ -38,9 +51,13 @@ use pooooooon\javaplayer\OldDesktopChunk;
 use pooooooon\javaplayer\task\chunktask;
 use pooooooon\javaplayer\utils\JavaBinarystream;
 use Ramsey\Uuid\Nonstandard\Uuid;
+use ReflectionMethod;
+use ReflectionProperty;
 
 class JavaPlayerNetworkSession extends NetworkSession
 {
+	/** @var PromiseResolver */
+	private $playerResolver;
 	public $status = 0;
 	public Loader $loader;
 	public string $username = "";
@@ -55,10 +72,16 @@ class JavaPlayerNetworkSession extends NetworkSession
 	private $packet_listeners = [];
 	/** @var JavaPlayerSpecificPacketListener|null */
 	private $specific_packet_listener;
+	public array $clientSetting = [
+		"ChatMode" => true,
+		"ChatColor" => true,
+		"SkinSettings" => 0,
+	];
 
 	public function __construct(Server $server, NetworkSessionManager $manager, PacketPool $packetPool, PacketSender $sender, PacketBroadcaster $broadcaster, Compressor $compressor, string $ip, int $port, Loader $loader)
 	{
 		parent::__construct($server, $manager, $packetPool, $sender, $broadcaster, $compressor, $ip, $port);
+		$this->playerResolver = new PromiseResolver;
 		$this->loader = $loader;
 		$this->bigBrother_breakPosition = [new Vector3(0, 0, 0), 0];
 	}
@@ -91,6 +114,23 @@ class JavaPlayerNetworkSession extends NetworkSession
 	public function unregisterPacketListener(JavaPlayerPacketListener $listener): void
 	{
 		unset($this->packet_listeners[spl_object_id($listener)]);
+	}
+
+	public function syncAbilities(Player $for) : void{
+		$isOp = $for->hasPermission(DefaultPermissions::ROOT_OPERATOR);
+		$pk = new PlayerAbilitiesPacket();
+		$pk->flyingSpeed = 0.05;
+		$pk->viewModifierField = 0.1;
+		$pk->canFly = $for->getAllowFlight();
+		$pk->damageDisabled = $for->isCreative();
+		$pk->isFlying = $for->isFlying();
+		$pk->isCreative = $for->isCreative();
+		$this->putRawPacket($pk);
+
+		$pk = new EntityStatusPacket();
+		$pk->entityStatus = $isOp ? 28 : 24;
+		$pk->entityId = $for->getId();
+		$this->putRawPacket($pk);
 	}
 
 	public function stopUsingChunk(int $chunkX, int $chunkZ): void
@@ -250,6 +290,58 @@ class JavaPlayerNetworkSession extends NetworkSession
 	}
 
 	/**
+	 * TODO: expand this to more than just humans
+	 */
+	public function onMobMainHandItemChange(Human $mob) : void{
+		$inv = $mob->getInventory();
+		if ($mob->getId() === $this->getPlayer()->getId()) {
+			$pk = new HeldItemChangePacket();
+			$pk->slot = $inv->getHeldItemIndex();
+			$this->putRawPacket($pk);
+		}
+		$pk = new EntityEquipmentPacket();
+		$pk->entityId = $mob->getId();
+		$pk->slot = 0;//main hand
+		$pk->item = $inv->getItemInHand();
+		$this->putRawPacket($pk);
+	}
+
+	public function onMobOffHandItemChange(Human $mob) : void{
+		$inv = $mob->getOffHandInventory();
+		$pk = new EntityEquipmentPacket();
+		$pk->entityId = $mob->getId();
+		$pk->slot = 1;//off hand
+		$pk->item = $inv->getItem(0);
+		$this->putRawPacket($pk);
+	}
+
+	public function onMobArmorChange(Living $mob) : void{
+		$inv = $mob->getArmorInventory();
+		$slots = [
+			2 => $inv->getBoots(),
+			3 => $inv->getLeggings(),
+			4 => $inv->getChestplate(),
+			5 => $inv->getHelmet()
+		];
+		foreach($slots as $slotid => $item){
+			$pk = new EntityEquipmentPacket();
+			$pk->entityId = $mob->getId();
+			$pk->slot = $slotid;//Armor id
+			$pk->item = $item;
+			$this->putRawPacket($pk);
+		}
+	}
+
+	public function onPlayerPickUpItem(Player $collector, Entity $pickedUp) : void{
+		$pk = new CollectItemPacket();
+		$pk->collectedEntityId = $pickedUp->getId();
+		$pk->collectorEntityId = $collector->getId();
+		assert($pickedUp instanceof ItemEntity);
+		$pk->pickUpItemCount = $pickedUp->getItem()->getCount();
+		$this->putRawPacket($pk);
+	}
+
+	/**
 	 * @param EncryptionResponsePacket $packet
 	 */
 	public function bigBrother_processAuthentication(EncryptionResponsePacket $packet): void
@@ -390,25 +482,12 @@ class JavaPlayerNetworkSession extends NetworkSession
 					}
 				}
 			}
+			$SkinId = $this->formattedUUID . "_Custom";
 			if ($model) {
-				$SkinId = $this->formattedUUID . "_CustomSlim";
-				$SkinResourcePatch = base64_encode(json_encode(["geometry" => ["default" => "geometry.humanoid.customSlim"]]));
-			} else {
-				$SkinId = $this->formattedUUID . "_Custom";
-				$SkinResourcePatch = base64_encode(json_encode(["geometry" => ["default" => "geometry.humanoid.custom"]]));
+				$SkinId .= "Slim";
 			}
-
-			$skin = new SkinImage($skinImage);
-			$SkinData = $skin->getSkinImageData(true);
-			$skinSize = $this->getSkinImageSize(strlen($skin->getRawSkinImageData(true)));
-			$SkinImageHeight = $skinSize[0];
-			$SkinImageWidth = $skinSize[1];
-
-			$cape = new SkinImage($capeImage);
-			$CapeData = $cape->getSkinImageData();
-			$capeSize = $this->getSkinImageSize(strlen($cape->getRawSkinImageData()));
-			$CapeImageHeight = $capeSize[0];
-			$CapeImageWidth = $capeSize[1];
+			$SkinData = (new SkinImage($skinImage))->getSkinImageData(true);
+			$CapeData = (new SkinImage($capeImage))->getSkinImageData();
 			$skin = new Skin($SkinId, base64_decode($SkinData), base64_decode($CapeData));
 			$this->loader->addJavaPlayer($this->uuid, (string)mt_rand(2 * (10 ** 15), (3 * (10 ** 15)) - 1), $this->username, $skin, $this);
 		}
@@ -577,6 +656,49 @@ class JavaPlayerNetworkSession extends NetworkSession
 					});
 				}
 			}
+		}
+	}
+	protected function createPlayer(): void{
+		$getProp = function (string $name){
+			$rp = new ReflectionProperty(NetworkSession::class, $name);
+			$rp->setAccessible(true);
+			return $rp->getValue($this);
+		};
+
+		$server = $getProp('server');
+		$info = $getProp('info');
+		$authenticated = $getProp('authenticated');
+		$cachedOfflinePlayerData = $getProp('cachedOfflinePlayerData');
+
+		$server->createPlayer($this, $info, $authenticated, $cachedOfflinePlayerData)->onCompletion(
+			function (Player $player){
+				$rm = new ReflectionMethod(NetworkSession::class, 'onPlayerCreated');
+				$rm->setAccessible(true);
+				$rm->invoke($this, $player);
+				$this->playerResolver->resolve($player);
+			},
+			fn() => $this->disconnect("Player creation failed")
+		);
+	}
+
+	public function getPlayerPromise() : Promise{
+		return $this->playerResolver->getPromise();
+	}
+
+	public function onFailedBlockAction(Vector3 $blockPos, ?int $face) : void{
+		if($blockPos->distanceSquared($this->player->getLocation()) < 10000){
+			$blocks = $blockPos->sidesArray();
+			if($face !== null){
+				$sidePos = $blockPos->getSide($face);
+
+				/** @var Vector3[] $blocks */
+				array_push($blocks, ...$sidePos->sidesArray()); //getAllSides() on each of these will include $blockPos and $sidePos because they are next to each other
+			}else{
+				$blocks[] = $blockPos;
+			}
+			// foreach($this->player->getWorld()->createBlockUpdatePackets(RuntimeBlockMapping::getMappingProtocol($this->session->getProtocolId()), $blocks) as $packet){
+			// 	$this->session->sendDataPacket($packet);
+			// }
 		}
 	}
 }
