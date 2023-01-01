@@ -57,6 +57,11 @@ abstract class Packet extends stdClass
 		return JavaBinarystream::writeJavaVarInt($this->pid()) . $this->buffer;
 	}
 
+	public function getBuffer(): string{
+		$this->encode();
+		return $this->buffer;
+	}
+	
 	protected abstract function encode(): void;
 
 	public abstract function pid(): int;
