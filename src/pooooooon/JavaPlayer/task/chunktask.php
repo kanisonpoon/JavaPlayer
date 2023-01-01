@@ -10,13 +10,18 @@ namespace pooooooon\javaplayer\task;
 use pocketmine\block\BlockLegacyIds;
 use pocketmine\block\tile\Spawnable;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\network\mcpe\compression\Compressor;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\world\format\Chunk;
 use pocketmine\world\format\io\FastChunkSerializer;
+use pocketmine\world\format\SubChunk;
 use pooooooon\javaplayer\entity\ItemFrameBlockEntity;
 use pooooooon\javaplayer\nbt\tag\LongArrayTag;
+use pooooooon\javaplayer\nbt\TAG_Compound;
+use pooooooon\javaplayer\nbt\TAG_Long_Array;
 use pooooooon\javaplayer\network\JavaPlayerNetworkSession;
 use pooooooon\javaplayer\network\protocol\Play\Server\ChunkDataPacket;
+use pooooooon\javaplayer\network\protocol\Play\Server\UpdateLightPacket;
 use pooooooon\javaplayer\utils\ConvertUtils;
 use pooooooon\javaplayer\utils\JavaBinarystream as Binary;
 
@@ -32,11 +37,21 @@ class chunktask extends AsyncTask
 	public $biomes;
 	/** @var string */
 	public $data;
+	/** @var Compressor */
+	protected $compressor;
+	/** @var int */
+	protected $chunkBitmask;
+	/** @var int */
+	protected $skyLightBitMask;
+	/** @var int */
+	protected $blockLightBitMask;
 
-	public function __construct(int $chunkX, int $chunkZ, Chunk $chunk, JavaPlayerNetworkSession $player)
+	public function __construct(int $chunkX, int $chunkZ, Chunk $chunk, JavaPlayerNetworkSession $player, Compressor $compressor)
 	{
+		$this->compressor = $compressor;
 		$this->chunk = FastChunkSerializer::serializeTerrain($chunk);
 		$this->storeLocal("player", $player);
+		$this->chunkBitmask = 0;
 		$this->chunkX = $chunkX;
 		$this->chunkZ = $chunkZ;
 	}
@@ -45,8 +60,6 @@ class chunktask extends AsyncTask
 	{
 		if ($this->chunk !== null) {
 			$chunk = FastChunkSerializer::deserializeTerrain($this->chunk);
-			//TODO: 320 world
-			$isNewChunk = count($chunk->getSubChunks()) === 20;
 			$isFullChunk = count($chunk->getSubChunks()) === 16;
 			$biomes = $chunk->getBiomeIdArray();
 
@@ -56,12 +69,9 @@ class chunktask extends AsyncTask
 				if ($subChunk->isEmptyFast()) {
 					continue;
 				}
-				$chunkBitmask = 0;
-				$chunkBitmask |= (0x01 << $num);
-				$skyLightBitMask = 0;
-				$skyLightBitMask |= (0x01 << $num + 1);
-				$blockLightBitMask = 0;
-				$blockLightBitMask |= (0x01 << $num + 1);
+				$this->chunkBitmask |= (0x01 << $num);
+				$this->skyLightBitMask |= (0x01 << $num + 1);
+				$this->blockLightBitMask |= (0x01 << $num + 1);
 
 				$palette = [];
 				$blockCount = 0;
@@ -70,11 +80,11 @@ class chunktask extends AsyncTask
 				$chunkData = "";
 				for ($y = 0; $y < 16; ++$y) {
 					for ($z = 0; $z < 16; ++$z) {
-
 						$data = "";
 						for ($x = 0; $x < 16; ++$x) {
-							$blockId = $subChunk->getFullBlock($x, $y, $z);
-							$blockData = $subChunk->getFullBlock($x, $y, $z);
+							$Block = $subChunk->getFullBlock($x, $y, $z);
+							$blockId = $Block >> 4;
+							$blockData = $Block & 0xf;
 
 							if ($blockId == BlockLegacyIds::FRAME_BLOCK) {
 								ItemFrameBlockEntity::getItemFrame($this->fetchLocal("player")->getWorld(), $x + ($this->chunkX << 4), $y + ($num << 4), $z + ($this->chunkZ << 4), $blockData, true);
@@ -107,17 +117,8 @@ class chunktask extends AsyncTask
 				for ($y = 0; $y < 16; ++$y) {
 					for ($z = 0; $z < 16; ++$z) {
 						for ($x = 0; $x < 16; $x += 2) {
-							$blockLight = 0;
-							$skyLight = 0;
-							//TODO: fix this
-							foreach ($subChunk->getBlockSkyLightArray() as $light) {
-								$blockLight = $light->get($x, $y, $z) | ($light->get($x, $y, $z) << 4);
-							}
-							foreach ($subChunk->getBlockLightArray() as $light) {
-								$skyLight = $light->get($x, $y, $z) | ($light->get($x, $y, $z) << 4);
-							}
-							$blockLightData .= chr($blockLight);
-							$skyLightData .= chr($skyLight);
+							$blockLightData .= chr($subChunk->getBlockLightArray()->get($x, $y, $z) | ($subChunk->getBlockLightArray()->get($x + 1, $y, $z) << 4));
+							$skyLightData .= chr($subChunk->getBlockSkyLightArray()->get($x, $y, $z) | ($subChunk->getBlockSkyLightArray()->get($x + 1, $y, $z) << 4));
 						}
 					}
 				}
@@ -137,13 +138,6 @@ class chunktask extends AsyncTask
 
 				/* Data Array */
 				$payload .= $chunkData;//todo:fix this
-				
-				$payload .= Binary::writeByte(8);//Bits Per biome
-				$biomecount = strlen($chunk->getBiomeIdArray());//biomecount
-				$payload .= Binary::writeJavaVarInt($biomecount);
-				for ($i = 0; $i < $biomecount; $i++) {
-					$payload .= Binary::writeJavaVarInt(ord($chunk->getBiomeIdArray()[$i]));//biome
-				}
 			}
 
 			$chunkData = $payload;
@@ -162,37 +156,39 @@ class chunktask extends AsyncTask
 				}
 			}
 			$longData[] = $long;
-			$heightMaps = CompoundTag::create();
-			$heightMaps->setTag("MOTION_BLOCKING", new LongArrayTag($longData));
-
-			$payload1 = "";
-			//TODO:biome
+			$heightMaps = new TAG_Compound("", [new TAG_Long_Array("MOTION_BLOCKING", $longData)]);
+			$heightMaps = $heightMaps->nbtSerialize();
+			$biomepayload = "";
 			for ($i = 0; $i < 256; $i++) {
-				$payload1 .= Binary::writeInt(ord($chunk->getBiomeIdArray()[$i]));
+				$biomepayload .= Binary::writeInt(ord($biomes[$i]));
 			}
-			$biomes = $payload1;
-			$blockEntities = [];
-			foreach ($chunk->getTiles() as $tile) {
-				if ($tile instanceof Spawnable) {
-					$blockEntities[] = clone $tile->getSpawnCompound();
-				}
-			}
-
+			$packets = [];
+			$pk = new UpdateLightPacket();
+			$pk->chunkX = $this->chunkX;
+			$pk->chunkZ = $this->chunkZ;
+			$pk->skyLightMask = $this->skyLightBitMask;
+			$pk->blockLightMask = $this->blockLightBitMask;
+			$pk->emptySkyLightMask = ~$this->skyLightBitMask;
+			$pk->emptyBlockLightMask = ~$this->blockLightBitMask;
+			$pk->skyLight = $skyLight1;
+			$pk->blockLight = $blockLight1;
+			$packets[] = $pk->getBuffer();
+			// foreach (FastChunkSerializer::deserializeTerrain($this->chunk)->getTiles() as $tile) {
+			// 	if ($tile instanceof Spawnable) {
+			// 		$blockEntities[] = clone $tile->getSpawnCompound();
+			// 	}
+			// }
 			$pk = new ChunkDataPacket();
 			$pk->chunkX = $this->chunkX;
 			$pk->chunkZ = $this->chunkZ;
-			$pk->primaryBitMask = $chunkBitmask;
+			$pk->isFullChunk = $isFullChunk;
+			$pk->primaryBitMask = $this->chunkBitmask;
 			$pk->heightMaps = $heightMaps;
+			$pk->biomes = $biomepayload;
 			$pk->data = $chunkData;
-			$pk->blockEntities = $blockEntities;
-			$pk->skyLightMask = $skyLightBitMask;
-			$pk->blockLightMask = $blockLightBitMask;
-			$pk->emptySkyLightMask = ~$skyLightBitMask;
-			$pk->emptyBlockLightMask = ~$blockLightBitMask;
-			$pk->skyLight = $skyLight1;
-			$pk->blockLight = $blockLight1;
-			$packets[] = $pk;
-			$this->data = igbinary_serialize($packets);
+			// $pk->blockEntities = $blockEntities;
+			$packets[] = $pk->getBuffer();
+			$this->data = $this->compressor->compress(igbinary_serialize($packets));
 		}
 	}
 
@@ -200,10 +196,11 @@ class chunktask extends AsyncTask
 	{
 		$player = $this->fetchLocal("player");
 		if ($player instanceof JavaPlayerNetworkSession && $player->getPlayer()->isConnected()) {
-			$data = igbinary_unserialize($this->data);
+			$data = igbinary_unserialize($this->compressor->decompress($this->data));
 			if ($data !== null) {
-				foreach ($data as $pk) {
-					$player->putRawPacket($pk);
+				$ida = [0x23, 0x20];
+				foreach ($data as $id => $rawdata) {
+					$player->putBufferPacket($ida[$id], $rawdata);
 				}
 			}
 		}
