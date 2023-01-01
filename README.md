@@ -4,6 +4,7 @@ Allows the connection of Minecraft: JE clients to PocketMine servers. Made for P
 # MCJE VER: 1.16.5
 ## Need implemented
 
+- NBT (can't write correctly)
 - Block (bug)
 - Gui (hard)
 - Inventory (hard)
