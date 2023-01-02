@@ -81,7 +81,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 	public array $clientSetting = [
 		"ChatMode" => true,
 		"ChatColor" => true,
-		"SkinSettings" => 0,
+		"SkinSettings" => 0x7f,
 	];
 	// private ?JavaInventoryManager $invManager = null;
 
