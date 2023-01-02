@@ -63,10 +63,12 @@ class JavaBinarystream extends Binary
 	 */
 	public static function sha1(string $input): string
 	{
-		$number = BigIntegerBcmath::create(sha1($input, true), -256);
-		$zero = BigIntegerBcmath::create(0);
-		$num = GenericNumberConverter::toHex($number->__toString());
-		return ($zero->compare($number) <= 0 ? "" : "-") . ltrim(($num), "0");
+		$gmp = gmp_import(sha1($input, true));
+		if(gmp_cmp($gmp, gmp_init("0x8000000000000000000000000000000000000000")) >= 0)
+		{
+			$gmp = gmp_mul(gmp_add(gmp_xor($gmp, gmp_init("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")), gmp_init(1)), gmp_init(-1));
+		}
+		return gmp_strval($gmp, 16);
 	}
 
 	/**
