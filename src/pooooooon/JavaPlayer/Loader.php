@@ -374,7 +374,7 @@ final class Loader extends PluginBase implements Listener
 
 				$player = $session->getPlayer();
 				assert($player !== null);
-				$this->java_players[$player->getUniqueId()->getBytes()] = new JavaPlayer($session, $this);
+				$this->javaplayers[$player->getUniqueId()->getBytes()] = new JavaPlayer($session, $this);
 
 				foreach ($this->listeners as $listener) {
 					$listener->onPlayerAdd($player);
@@ -408,7 +408,7 @@ final class Loader extends PluginBase implements Listener
 			throw new InvalidArgumentException("Invalid Player supplied, expected a java player, got " . $player->getName());
 		}
 
-		if (!isset($this->java_players[$id = $player->getUniqueId()->getBytes()])) {
+		if (!isset($this->javaplayers[$id = $player->getUniqueId()->getBytes()])) {
 			return;
 		}
 
