@@ -7,8 +7,8 @@ namespace pooooooon\javaplayer\network;
 use pocketmine\network\mcpe\encryption\EncryptionContext;
 use pooooooon\javaplayer\Loader;
 use pooooooon\javaplayer\network\protocol\Login\LoginDisconnectPacket;
+use pooooooon\javaplayer\network\protocol\Status\PingPacket;
 use pooooooon\javaplayer\utils\JavaBinarystream;
-use pooooooon\javaplayer\utils\JavaBinarystream as Binary;
 use shoghicp\BigBrother\BigBrother;
 
 class Session
@@ -53,7 +53,7 @@ class Session
 	 */
 	public function setCompression(int $threshold): void
 	{
-		$this->writeRaw(Binary::writeJavaVarInt(0x03) . Binary::writeJavaVarInt($threshold >= 0 ? $threshold : -1));
+		$this->writeRaw(JavaBinarystream::writeJavaVarInt(0x03) . JavaBinarystream::writeJavaVarInt($threshold >= 0 ? $threshold : -1));
 		$this->threshold = $threshold === -1 ? null : $threshold;
 	}
 
@@ -69,9 +69,9 @@ class Session
 			} else {
 				$dataLength = 0;
 			}
-			$data = Binary::writeJavaVarInt($dataLength) . $data;
+			$data = JavaBinarystream::writeJavaVarInt($dataLength) . $data;
 		}
-		$this->write(Binary::writeJavaVarInt(strlen($data)) . $data);
+		$this->write(JavaBinarystream::writeJavaVarInt(strlen($data)) . $data);
 	}
 
 	/**
@@ -110,7 +110,7 @@ class Session
 
 	public function process(): void
 	{
-		$length = Binary::readVarIntSession($this);
+		$length = JavaBinarystream::readVarIntSession($this);
 		if ($length === false or $this->status === -1) {
 			$this->close("Connection closed");
 			return;
@@ -124,7 +124,7 @@ class Session
 		$buffer = $this->read($length);
 
 		if ($this->threshold !== null) {
-			$dataLength = Binary::readComputerVarInt($buffer, $offset);
+			$dataLength = JavaBinarystream::readComputerVarInt($buffer, $offset);
 			if ($dataLength !== 0) {
 				if ($dataLength < $this->threshold) {
 					$this->close("Invalid compression threshold");
@@ -141,7 +141,7 @@ class Session
 		if ($this->status === 2) { //Login
 			$this->manager->sendPacket($this->identifier, $buffer);
 		} elseif ($this->status === 1) {
-			$pid = Binary::readComputerVarInt($buffer, $offset);
+			$pid = JavaBinarystream::readComputerVarInt($buffer, $offset);
 			if ($pid === 0x00) {
 				$sample = [];
 				foreach ($this->manager->sample as $id => $name) {
@@ -152,7 +152,7 @@ class Session
 				}
 				$data = [
 					"version" => [
-						"name" => "1.16.5",
+						"name" => InfoManager::VERSION,
 						"protocol" => InfoManager::PROTOCOL
 					],
 					"players" => [
@@ -167,7 +167,7 @@ class Session
 				}
 				$data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-				$data = Binary::writeJavaVarInt(0x00) . Binary::writeJavaVarInt(strlen($data)) . $data;
+				$data = JavaBinarystream::writeJavaVarInt(0x00) . JavaBinarystream::writeJavaVarInt(strlen($data)) . $data;
 				$this->writeRaw($data);
 			} elseif ($pid === 0x01) {
 				$packet = new PingPacket();
@@ -176,21 +176,20 @@ class Session
 				$this->status = -1;
 			}
 		} elseif ($this->status === 0) {
-			$pid = Binary::readComputerVarInt($buffer, $offset);
+			$pid = JavaBinarystream::readComputerVarInt($buffer, $offset);
 			if ($pid === 0x00) {
-				$protocol = Binary::readComputerVarInt($buffer, $offset);
-				$len = Binary::readComputerVarInt($buffer, $offset);
+				$protocol = JavaBinarystream::readComputerVarInt($buffer, $offset);
+				$len = JavaBinarystream::readComputerVarInt($buffer, $offset);
 				//host name
 				$offset += $len;
 				//server port
 				$offset += 2;
-				$nextState = Binary::readComputerVarInt($buffer, $offset);
+				$nextState = JavaBinarystream::readComputerVarInt($buffer, $offset);
 
 				if ($nextState === 1) {
 					$this->status = 1;
 				} elseif ($nextState === 2) {
 					$this->status = -1;
-					var_dump("ok" . $protocol);
 					if($protocol < InfoManager::PROTOCOL){
 						$packet = new LoginDisconnectPacket();
 						$packet->reason = json_encode(["translate" => "multiplayer.disconnect.outdated_client", "with" => [["text" => infoManager::VERSION]]]);
