@@ -184,9 +184,8 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$ch->setValue($this->getPlayer(), []);
 	}
 
-	public function addToSendBuffer(ClientboundPacket $packet): void
+	public function addToSendBuffer(string $buffer) : void
 	{
-		public function addToSendBuffer(string $buffer) : void{
 		parent::addToSendBuffer($buffer);
 		$rp = new ReflectionProperty(NetworkSession::class, 'packetPool');
 		$rp->setAccessible(true);
@@ -209,7 +208,8 @@ class JavaPlayerNetworkSession extends NetworkSession
 		}
 	}
 	
-	public function syncViewAreaRadius(int $distance) : void{
+	public function syncViewAreaRadius(int $distance) : void
+	{
 		$pk = new UpdateViewDistancePacket();
 		$pk->viewDistance = $distance * 2;
 		$this->putRawPacket($pk);
@@ -227,7 +227,8 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->putRawPacket($pk);
 	}
 
-	public function syncAvailableCommands() : void{
+	public function syncAvailableCommands() : void
+	{
 		$buffer = "";
 		$commands = Server::getInstance()->getCommandMap()->getCommands();
 		$commandData = [];
@@ -303,7 +304,8 @@ class JavaPlayerNetworkSession extends NetworkSession
 		return $this->bigBrother_properties;
 	}
 
-	public function syncGameMode(GameMode $mode, bool $isRollback = false) : void{
+	public function syncGameMode(GameMode $mode, bool $isRollback = false) : void
+	{
 		$val = TypeConverter::getInstance()->coreGameModeToProtocol($mode);
 		$pk = new ChangeGameStatePacket();
 		$pk->reason = 3;
@@ -317,14 +319,16 @@ class JavaPlayerNetworkSession extends NetworkSession
 		}
 	}
 
-	public function syncWorldTime(int $worldTime) : void{
+	public function syncWorldTime(int $worldTime) : void
+	{
 		$pk = new TimeUpdatePacket();
 		$pk->worldAge = 0;
 		$pk->dayTime = $worldTime;
 		$this->putRawPacket($pk);
 	}
 
-	public function syncPlayerSpawnPoint(Position $newSpawn) : void{
+	public function syncPlayerSpawnPoint(Position $newSpawn) : void
+	{
 		$pk = new SpawnPositionPacket();
 		$pk->x = $newSpawn->getX();
 		$pk->y = $newSpawn->getY();
@@ -332,14 +336,16 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->putRawPacket($pk);
 	}
 
-	public function syncWorldSpawnPoint(Position $newSpawn) : void{
+	public function syncWorldSpawnPoint(Position $newSpawn) : void
+	{
 		$this->syncPlayerSpawnPoint($newSpawn);
 	}
 
 	/**
 	 * TODO: expand this to more than just humans
 	 */
-	public function onMobMainHandItemChange(Human $mob) : void{
+	public function onMobMainHandItemChange(Human $mob) : void
+	{
 		$inv = $mob->getInventory();
 		if ($mob->getId() === $this->getPlayer()->getId()) {
 			$pk = new HeldItemChangePacket();
@@ -353,7 +359,8 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->putRawPacket($pk);
 	}
 
-	public function onMobOffHandItemChange(Human $mob) : void{
+	public function onMobOffHandItemChange(Human $mob) : void
+	{
 		$inv = $mob->getOffHandInventory();
 		$pk = new EntityEquipmentPacket();
 		$pk->entityId = $mob->getId();
@@ -362,7 +369,8 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->putRawPacket($pk);
 	}
 
-	public function onMobArmorChange(Living $mob) : void{
+	public function onMobArmorChange(Living $mob) : void
+	{
 		$inv = $mob->getArmorInventory();
 		$slots = [
 			2 => $inv->getBoots(),
@@ -379,7 +387,8 @@ class JavaPlayerNetworkSession extends NetworkSession
 		}
 	}
 
-	public function onPlayerPickUpItem(Player $collector, Entity $pickedUp) : void{
+	public function onPlayerPickUpItem(Player $collector, Entity $pickedUp) : void
+	{
 		$pk = new CollectItemPacket();
 		$pk->collectedEntityId = $pickedUp->getId();
 		$pk->collectorEntityId = $collector->getId();
