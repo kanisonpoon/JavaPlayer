@@ -493,7 +493,6 @@ class JavaPlayerNetworkSession extends NetworkSession
 
 			$pk->uuid = $this->uuid;
 			$pk->name = $this->username;
-			var_dump($onlineModeData);
 
 			$this->putRawPacket($pk);
 
