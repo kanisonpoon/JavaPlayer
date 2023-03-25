@@ -105,7 +105,7 @@ class ProtocolInterface implements NetworkInterface
 	private $threshold;
 
 	/**
-	 * @param BigBrother $plugin
+	 * @param Loader $plugin
 	 * @param Server $server
 	 * @param Translator $translator
 	 * @param int $threshold
@@ -349,8 +349,8 @@ class ProtocolInterface implements NetworkInterface
 			if ($pid === 0x00) {
 				$pk = new LoginStartPacket();
 				$pk->read($payload, $offset);
-				$player->bigBrother_handleAuthentication($pk->name, true);
-			} elseif ($pid === 0x01 && false) {
+				$player->bigBrother_handleAuthentication($pk, $this->plugin->isOnlineMode());
+			} elseif ($pid === 0x01) {
 				$pk = new EncryptionResponsePacket();
 				$pk->read($payload, $offset);
 				$player->bigBrother_processAuthentication($pk);
