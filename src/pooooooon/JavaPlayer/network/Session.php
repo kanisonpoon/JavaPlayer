@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace pooooooon\javaplayer\network;
 
-use pocketmine\network\mcpe\encryption\EncryptionContext;
 use pooooooon\javaplayer\Loader;
 use pooooooon\javaplayer\network\protocol\Login\LoginDisconnectPacket;
 use pooooooon\javaplayer\network\protocol\Status\PingPacket;
