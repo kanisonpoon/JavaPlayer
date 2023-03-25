@@ -54,6 +54,7 @@ final class Loader extends PluginBase implements Listener
 
 	public \OpenSSLAsymmetricKey $private_key;
 	public string $public_key = '';
+	public bool $isOnline = true;
 	/**
 	 * @param string|null $message
 	 * @param int $type
@@ -474,6 +475,7 @@ final class Loader extends PluginBase implements Listener
 		$ip = (string)$this->getConfig()->get("ip") ?? Server::getInstance()->getIp();
 		$port = (int)$this->getConfig()->get("port") ?? 25565;
 		$motd = ((bool)$this->getConfig()->get("UsePmMotd") ?? true) ? Server::getInstance()->getMotd() : ((string)$this->getConfig()->get("motd") ?? "Minecraft: PC server");
+		$this->isOnline = (bool)$this->getConfig()->get("online") ?? true;
 		$this->translator = new Translator();
 		$this->getServer()->getLogger()->info("Starting Minecraft: Java Edition server version ".TextFormat::AQUA."v".InfoManager::VERSION);
 		$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator, (int)$this->getConfig()->get("network-compression-threshold"), $port, $ip, $motd);
@@ -491,6 +493,10 @@ final class Loader extends PluginBase implements Listener
 		$this->private_key = $private_key;
 		$public_key = base64_decode(trim(substr(openssl_pkey_get_details($private_key)["key"], 26, -24)));
 		$this->public_key = $public_key;
+	}
+	
+	public function isOnlineMode(){
+		return $this->isOnline;
 	}
 
 	public function getASN1PublicKey(){
