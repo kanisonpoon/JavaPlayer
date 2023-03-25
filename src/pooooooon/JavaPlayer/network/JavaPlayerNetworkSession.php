@@ -38,7 +38,9 @@ use pooooooon\javaplayer\JavaPlayer;
 use pooooooon\javaplayer\Loader;
 use pooooooon\javaplayer\network\listener\JavaPlayerPacketListener;
 use pooooooon\javaplayer\network\listener\JavaPlayerSpecificPacketListener;
+use pooooooon\javaplayer\network\protocol\Login\EncryptionRequestPacket;
 use pooooooon\javaplayer\network\protocol\Login\EncryptionResponsePacket;
+use pooooooon\javaplayer\network\protocol\Login\LoginStartPacket;
 use pooooooon\javaplayer\network\protocol\Login\LoginSuccessPacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\ChangeGameStatePacket;
 use pooooooon\javaplayer\network\protocol\Play\Server\ChunkDataPacket;
@@ -58,6 +60,7 @@ use pooooooon\javaplayer\OldDesktopChunk;
 use pooooooon\javaplayer\task\chunktask;
 use pooooooon\javaplayer\utils\JavaBinarystream;
 use Ramsey\Uuid\Nonstandard\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use ReflectionMethod;
 use ReflectionProperty;
 
@@ -68,7 +71,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 	public $status = 0;
 	public Loader $loader;
 	public string $username = "";
-	public string $uuid = "";
+	public UuidInterface $uuid;
 	public string $formattedUUID = "";
 	public $bigBrother_breakPosition;
 	/** @var array */
@@ -84,6 +87,8 @@ class JavaPlayerNetworkSession extends NetworkSession
 		"ChatColor" => true,
 		"SkinSettings" => 0x7f,
 	];
+	public string $checkToken = '';
+	public string $secret = '';
 	// private ?JavaInventoryManager $invManager = null;
 
 	public function __construct(Server $server, NetworkSessionManager $manager, PacketPool $packetPool, PacketSender $sender, PacketBroadcaster $broadcaster, Compressor $compressor, string $ip, int $port, Loader $loader)
@@ -151,6 +156,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 
 	public function putRawPacket(Packet $packet)
 	{
+		var_dump($packet);
 		$this->loader->interface->putRawPacket($this, $packet);
 	}
 
@@ -184,8 +190,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$ch->setValue($this->getPlayer(), []);
 	}
 
-	public function addToSendBuffer(string $buffer) : void
-	{
+	public function addToSendBuffer(string $buffer) : void{
 		parent::addToSendBuffer($buffer);
 		$rp = new ReflectionProperty(NetworkSession::class, 'packetPool');
 		$rp->setAccessible(true);
@@ -208,8 +213,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 		}
 	}
 	
-	public function syncViewAreaRadius(int $distance) : void
-	{
+	public function syncViewAreaRadius(int $distance) : void{
 		$pk = new UpdateViewDistancePacket();
 		$pk->viewDistance = $distance * 2;
 		$this->putRawPacket($pk);
@@ -218,8 +222,8 @@ class JavaPlayerNetworkSession extends NetworkSession
 	public function syncViewAreaCenterPoint(Vector3 $newPos, int $viewDistance) : void
 	{
 		$pk = new UpdateViewPositionPacket();
-		$pk->chunkX = $newPos->getX() >> 4;
-		$pk->chunkZ = $newPos->getZ() >> 4;
+		$pk->chunkX = ((int) $newPos->getX()) >> 4;
+		$pk->chunkZ = ((int) $newPos->getZ()) >> 4;
 		$this->putRawPacket($pk);
 
 		$pk = new UpdateViewDistancePacket();
@@ -227,8 +231,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->putRawPacket($pk);
 	}
 
-	public function syncAvailableCommands() : void
-	{
+	public function syncAvailableCommands() : void{
 		$buffer = "";
 		$commands = Server::getInstance()->getCommandMap()->getCommands();
 		$commandData = [];
@@ -298,14 +301,12 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->putRawPacket($pk);
 		parent::startUsingChunk($chunkX, $chunkZ, $onCompletion);
 	}
-
 	public function bigBrother_getProperties(): array
 	{
 		return $this->bigBrother_properties;
 	}
 
-	public function syncGameMode(GameMode $mode, bool $isRollback = false) : void
-	{
+	public function syncGameMode(GameMode $mode, bool $isRollback = false) : void{
 		$val = TypeConverter::getInstance()->coreGameModeToProtocol($mode);
 		$pk = new ChangeGameStatePacket();
 		$pk->reason = 3;
@@ -319,16 +320,14 @@ class JavaPlayerNetworkSession extends NetworkSession
 		}
 	}
 
-	public function syncWorldTime(int $worldTime) : void
-	{
+	public function syncWorldTime(int $worldTime) : void{
 		$pk = new TimeUpdatePacket();
 		$pk->worldAge = 0;
 		$pk->dayTime = $worldTime;
 		$this->putRawPacket($pk);
 	}
 
-	public function syncPlayerSpawnPoint(Position $newSpawn) : void
-	{
+	public function syncPlayerSpawnPoint(Position $newSpawn) : void{
 		$pk = new SpawnPositionPacket();
 		$pk->x = $newSpawn->getX();
 		$pk->y = $newSpawn->getY();
@@ -336,16 +335,14 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->putRawPacket($pk);
 	}
 
-	public function syncWorldSpawnPoint(Position $newSpawn) : void
-	{
+	public function syncWorldSpawnPoint(Position $newSpawn) : void{
 		$this->syncPlayerSpawnPoint($newSpawn);
 	}
 
 	/**
 	 * TODO: expand this to more than just humans
 	 */
-	public function onMobMainHandItemChange(Human $mob) : void
-	{
+	public function onMobMainHandItemChange(Human $mob) : void{
 		$inv = $mob->getInventory();
 		if ($mob->getId() === $this->getPlayer()->getId()) {
 			$pk = new HeldItemChangePacket();
@@ -359,8 +356,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->putRawPacket($pk);
 	}
 
-	public function onMobOffHandItemChange(Human $mob) : void
-	{
+	public function onMobOffHandItemChange(Human $mob) : void{
 		$inv = $mob->getOffHandInventory();
 		$pk = new EntityEquipmentPacket();
 		$pk->entityId = $mob->getId();
@@ -369,8 +365,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 		$this->putRawPacket($pk);
 	}
 
-	public function onMobArmorChange(Living $mob) : void
-	{
+	public function onMobArmorChange(Living $mob) : void{
 		$inv = $mob->getArmorInventory();
 		$slots = [
 			2 => $inv->getBoots(),
@@ -387,8 +382,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 		}
 	}
 
-	public function onPlayerPickUpItem(Player $collector, Entity $pickedUp) : void
-	{
+	public function onPlayerPickUpItem(Player $collector, Entity $pickedUp) : void{
 		$pk = new CollectItemPacket();
 		$pk->collectedEntityId = $pickedUp->getId();
 		$pk->collectorEntityId = $collector->getId();
@@ -402,14 +396,14 @@ class JavaPlayerNetworkSession extends NetworkSession
 	 */
 	public function bigBrother_processAuthentication(EncryptionResponsePacket $packet): void
 	{
-		$this->bigBrother_secret = $this->loader->decryptBinary($packet->sharedSecret);//todo
-		$token = $this->loader->decryptBinary($packet->verifyToken);//todo
-		$this->interface->enableEncryption($this, $this->bigBrother_secret);
-		if ($token !== $this->bigBrother_checkToken) {
+		$this->secret = $this->loader->decryptBinary($packet->sharedSecret);
+		$token = $this->loader->decryptBinary($packet->verifyToken);
+		if ($token !== $this->checkToken) {
 			$this->disconnect("Invalid check token");
 		} else {
-			$username = $this->bigBrother_username;
-			$hash = JavaBinarystream::sha1("" . $this->bigBrother_secret . $this->loader->getASN1PublicKey());
+			$this->loader->interface->enableEncryption($this, $this->secret);
+			$username = $this->username;
+			$hash = JavaBinarystream::sha1($this->secret . $this->loader->getASN1PublicKey());
 
 			Server::getInstance()->getAsyncPool()->submitTask(new class($this, $username, $hash) extends AsyncTask {
 
@@ -419,12 +413,12 @@ class JavaPlayerNetworkSession extends NetworkSession
 				private $hash;
 
 				/**
-				 * @param JavaPlayer $player
+				 * @param JavaPlayerNetworkSession $player
 				 * @param string $username
 				 * @param string $hash
 				 * @param Closure $onCompletion
 				 */
-				public function __construct(JavaPlayer $player, string $username, string $hash, Closure $onCompletion)
+				public function __construct(JavaPlayerNetworkSession $player, string $username, string $hash)
 				{
 					self::storeLocal("", $player);
 					$this->username = $username;
@@ -484,18 +478,22 @@ class JavaPlayerNetworkSession extends NetworkSession
 	 * @param string $uuid
 	 * @param array|null $onlineModeData
 	 */
-	public function bigBrother_authenticate(string $uuid, ?array $onlineModeData = null): void
+	public function bigBrother_authenticate(string|UuidInterface $uuid, ?array $onlineModeData = null): void
 	{
 		if ($this->status === 0) {
+			if(!($uuid instanceof UuidInterface)){
+				$uuid = Uuid::fromString($uuid);
+			}
 			$this->uuid = $uuid;
-			$this->formattedUUID = Uuid::fromString($this->uuid)->getBytes();
+			$this->formattedUUID = $this->uuid->getBytes();
 
 			$this->loader->interface->setCompression($this);
 
 			$pk = new LoginSuccessPacket();
 
-			$pk->uuid = $this->formattedUUID;
+			$pk->uuid = $this->uuid;
 			$pk->name = $this->username;
+			var_dump($onlineModeData);
 
 			$this->putRawPacket($pk);
 
@@ -523,7 +521,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 						 * Detect whether the player has the “Alex?” or “Steve?”
 						 * Ref) https://github.com/mapcrafter/mapcrafter-playermarkers/blob/c583dd9157a041a3c9ec5c68244f73b8d01ac37a/playermarkers/player.php#L8-L19
 						 */
-						if ((bool)(array_reduce(str_split($uuid, 8), function ($acm, $val) {
+						if ((bool)(array_reduce(str_split($uuid->toString(), 8), function ($acm, $val) {
 								return $acm ^ hexdec($val);
 							}, 0) % 2)) {
 							$skinImage = file_get_contents("http://assets.mojang.com/SkinTemplates/alex.png");
@@ -595,22 +593,21 @@ class JavaPlayerNetworkSession extends NetworkSession
 	}
 
 	/**
-	 * @param string $username
 	 * @param bool $onlineMode
 	 */
-	public function bigBrother_handleAuthentication(string $username, bool $onlineMode = false): void
+	public function bigBrother_handleAuthentication(LoginStartPacket $packet, bool $onlineMode = false): void
 	{
+		$username = $packet->name;
 		if ($this->status === 0) {
 			$this->username = $username;
-			/*if($onlineMode){
+			if($onlineMode){
 				$pk = new EncryptionRequestPacket();
 				$pk->serverID = "";
 				$pk->publicKey = $this->loader->getASN1PublicKey();
-				$pk->verifyToken = $this->bigBrother_checkToken = str_repeat("\x00", 4);
+				$pk->verifyToken = $this->checkToken = random_bytes(9);
 				$this->putRawPacket($pk);
-			}else*/ {
+			}else{
 				if (!is_null(($info = $this->loader->getProfileCache($username)))) {
-					//var_dump($info);
 					$this->bigBrother_authenticate($info["id"], $info["properties"]);
 				} else {
 					Server::getInstance()->getAsyncPool()->submitTask(new class($this->loader, $this, $username) extends AsyncTask {
@@ -638,12 +635,11 @@ class JavaPlayerNetworkSession extends NetworkSession
 							$info = null;
 
 							$response = Internet::getURL("https://api.mojang.com/users/profiles/minecraft/" . $this->username, 10, [], $err);
-							var_dump($response);
 							if ($response === null) {
 								return;
 							}
 							if ($response->getCode() === 204) {
-								//$this->publishProgress("UserNotFound: failed to fetch profile for '$this->username'; status={$response->getCode()}; err=$err; response_header=".json_encode($response->getHeaders()));
+								$this->publishProgress("UserNotFound: failed to fetch profile for '$this->username'; status={$response->getCode()}; err=$err; response_header=".json_encode($response->getHeaders()));
 								$this->setResult([
 									"id" => str_replace("-", "", Uuid::uuid4()->toString()),
 									"name" => $this->username,
@@ -714,6 +710,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 			}
 		}
 	}
+
 	protected function createPlayer(): void{
 		$getProp = function (string $name){
 			$rp = new ReflectionProperty(NetworkSession::class, $name);
@@ -742,7 +739,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 	}
 
 	public function onFailedBlockAction(Vector3 $blockPos, ?int $face) : void{
-		if($blockPos->distanceSquared($this->player->getLocation()) < 10000){
+		if($blockPos->distanceSquared($this->getplayer()->getLocation()) < 10000){
 			$blocks = $blockPos->sidesArray();
 			if($face !== null){
 				$sidePos = $blockPos->getSide($face);
