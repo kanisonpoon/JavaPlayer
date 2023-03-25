@@ -23,7 +23,6 @@ use pocketmine\promise\PromiseResolver;
 use pocketmine\Server;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\TextFormat;
-use pocketmine\utils\Utils;
 use pocketmine\VersionInfo;
 use pooooooon\javaplayer\info\JavaPlayerInfo;
 use pooooooon\javaplayer\listener\JavaPlayerListener;
