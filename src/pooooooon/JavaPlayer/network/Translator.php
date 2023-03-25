@@ -64,6 +64,7 @@ use pocketmine\network\mcpe\protocol\SetTitlePacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\TakeItemActorPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
+use pocketmine\network\mcpe\protocol\types\AbilitiesLayer;
 use pocketmine\network\mcpe\protocol\types\ActorEvent;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\types\CacheableNbt;
@@ -82,7 +83,6 @@ use pocketmine\network\mcpe\protocol\types\LevelEvent;
 use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 use pocketmine\network\mcpe\protocol\types\ParticleIds;
 use pocketmine\network\mcpe\protocol\types\PlayerAction;
-use pocketmine\network\mcpe\protocol\types\UpdateAbilitiesPacketLayer;
 use pocketmine\network\mcpe\protocol\UpdateAbilitiesPacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\player\GameMode;
@@ -2681,11 +2681,11 @@ class Translator
 
 			case Info::UPDATE_ABILITIES_PACKET:
 				/** @var UpdateAbilitiesPacket $packet */
-				$data = $packet->getabilityLayers()[0];
+				$data = $packet->getData()->getAbilityLayers()[0];
 				$BoolAbilities = $data->getBoolAbilities();
-				$isFlying = $BoolAbilities[UpdateAbilitiesPacketLayer::ABILITY_FLYING];
-				$canFly = $BoolAbilities[UpdateAbilitiesPacketLayer::ABILITY_ALLOW_FLIGHT];
-				$damageDisabled = $BoolAbilities[UpdateAbilitiesPacketLayer::ABILITY_INVULNERABLE];
+				$isFlying = $BoolAbilities[AbilitiesLayer::ABILITY_FLYING];
+				$canFly = $BoolAbilities[AbilitiesLayer::ABILITY_ALLOW_FLIGHT];
+				$damageDisabled = $BoolAbilities[AbilitiesLayer::ABILITY_INVULNERABLE];
 				$pk = new PlayerAbilitiesPacket();
 				$pk->flyingSpeed = $data->getFlySpeed();
 				$pk->viewModifierField = 0.1;
