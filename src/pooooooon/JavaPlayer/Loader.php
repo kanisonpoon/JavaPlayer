@@ -10,7 +10,6 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\network\mcpe\convert\GlobalItemTypeDictionary;
 use pocketmine\network\mcpe\NetworkSession;
-use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\RequestChunkRadiusPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackClientResponsePacket;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
@@ -21,7 +20,6 @@ use pocketmine\player\XboxLivePlayerInfo;
 use pocketmine\plugin\PluginBase;
 use pocketmine\promise\Promise;
 use pocketmine\promise\PromiseResolver;
-use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\TextFormat;
@@ -35,6 +33,7 @@ use pooooooon\javaplayer\network\ProtocolInterface;
 use pooooooon\javaplayer\network\Translator;
 use pooooooon\javaplayer\utils\ConvertUtils;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use ReflectionMethod;
 use ReflectionProperty;
 
@@ -52,6 +51,10 @@ final class Loader extends PluginBase implements Listener
 	/** @var JavaPlayer[] */
 	private array $javaplayers = [];
 	public static int $POCKETMINE_VERSION;
+
+	public \OpenSSLAsymmetricKey $private_key;
+	public string $public_key = '';
+	public bool $isOnline = true;
 	/**
 	 * @param string|null $message
 	 * @param int $type
@@ -333,9 +336,9 @@ final class Loader extends PluginBase implements Listener
 		return $this->javaplayers[$player->getUniqueId()->getBytes()] ?? null;
 	}
 
-	public function addJavaPlayer($uuid, $xuid, $gamertag, Skin $skin, JavaPlayerNetworkSession $j): void
+	public function addJavaPlayer(UuidInterface $uuid, $xuid, $gamertag, Skin $skin, JavaPlayerNetworkSession $j): void
 	{
-		$this->addPlayer(new JavaPlayerInfo(Uuid::fromString($uuid), $xuid, $gamertag, $skin, $data["extra_data"] ?? []), $j);
+		$this->addPlayer(new JavaPlayerInfo($uuid, $xuid, $gamertag, $skin, $data["extra_data"] ?? []), $j);
 	}
 
 	public function addPlayer(JavaPlayerInfo $info, JavaPlayerNetworkSession $jn): Promise
@@ -363,6 +366,7 @@ final class Loader extends PluginBase implements Listener
 		$serializer = PacketSerializer::encoder(new PacketSerializerContext(GlobalItemTypeDictionary::getInstance()->getDictionary()));
 		$pk->encode($serializer);
 		$session->handleDataPacket($pk, $serializer->getBuffer());
+
 		// Create a new promise, to make sure a FakePlayer is always
 		// registered before the caller's onCompletion is called.
 		$playerResolver = new PromiseResolver;
@@ -471,11 +475,37 @@ final class Loader extends PluginBase implements Listener
 		$ip = (string)$this->getConfig()->get("ip") ?? Server::getInstance()->getIp();
 		$port = (int)$this->getConfig()->get("port") ?? 25565;
 		$motd = ((bool)$this->getConfig()->get("UsePmMotd") ?? true) ? Server::getInstance()->getMotd() : ((string)$this->getConfig()->get("motd") ?? "Minecraft: PC server");
+		$this->isOnline = (bool)$this->getConfig()->get("online") ?? true;
 		$this->translator = new Translator();
 		$this->getServer()->getLogger()->info("Starting Minecraft: Java Edition server version ".TextFormat::AQUA."v".InfoManager::VERSION);
 		$this->interface = new ProtocolInterface($this, $this->getServer(), $this->translator, (int)$this->getConfig()->get("network-compression-threshold"), $port, $ip, $motd);
 		$this->getServer()->getNetwork()->registerInterface($this->interface);
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
+		$args = [
+			"private_key_bits" => 1024,
+			"private_key_type" => OPENSSL_KEYTYPE_RSA,
+			"config" => __DIR__."/openssl.cnf"
+		];
+		$private_key = openssl_pkey_new($args);
+		if (!$private_key) {
+			throw new \RuntimeException("openssl_pkey_new() failed: " . openssl_error_string());
+		}
+		$this->private_key = $private_key;
+		$public_key = base64_decode(trim(substr(openssl_pkey_get_details($private_key)["key"], 26, -24)));
+		$this->public_key = $public_key;
+	}
+	
+	public function isOnlineMode(){
+		return $this->isOnline;
+	}
+
+	public function getASN1PublicKey(){
+		return $this->public_key;
+	}
+
+	public function decryptBinary(string $binary){
+		openssl_private_decrypt($binary, $secret, $this->private_key, OPENSSL_PKCS1_PADDING);
+		return $secret;
 	}
 
 	public function registerListener(JavaPlayerListener $listener): void

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace pooooooon\javaplayer\network;
 
-use pocketmine\network\mcpe\encryption\EncryptionContext;
 use pooooooon\javaplayer\Loader;
 use pooooooon\javaplayer\network\protocol\Login\LoginDisconnectPacket;
 use pooooooon\javaplayer\network\protocol\Status\PingPacket;
 use pooooooon\javaplayer\utils\JavaBinarystream;
-use shoghicp\BigBrother\BigBrother;
+use Crypto\Cipher;
 
 class Session
 {
@@ -17,8 +16,6 @@ class Session
 	protected $address;
 	/** @var int */
 	protected $port;
-	/** @var EncryptionContext */
-	protected $aes;
 	/** @var bool */
 	protected $encryptionEnabled = false;
 	/** @var InfoManager */
@@ -31,6 +28,8 @@ class Session
 	private $status = 0;
 	/** @var ?int */
 	private $threshold = null;
+	private Cipher $decryptCipher;
+	private Cipher $encryptCipher;
 
 	/**
 	 * @param InfoManager $manager
@@ -79,7 +78,7 @@ class Session
 	 */
 	public function write(string $data): void
 	{
-	    	@fwrite($this->socket, $this->encryptionEnabled ? $this->aes->encrypt($data) : $data);
+	    @fwrite($this->socket, $this->encryptionEnabled ? $this->encryptCipher->encryptUpdate($data) : $data);
 	}
 
 	/**
@@ -103,8 +102,11 @@ class Session
 	 */
 	public function enableEncryption(string $secret): void
 	{
-		$this->aes = EncryptionContext::cfb8($secret);
-
+		$algorithm = "AES-128-CFB8";
+		$this->decryptCipher = new Cipher($algorithm);
+		$this->decryptCipher->decryptInit($secret, $secret);
+		$this->encryptCipher = new Cipher($algorithm);
+		$this->encryptCipher->encryptInit($secret, $secret);
 		$this->encryptionEnabled = true;
 	}
 
@@ -228,7 +230,7 @@ class Session
 		$data = @fread($this->socket, $len);
 		if ($data !== false) {
 			if ($this->encryptionEnabled && strlen($data) > 0) {
-				return $this->aes->decrypt($data);
+				return $this->decryptCipher->decryptUpdate($data);
 			}
 			return $data;
 		}
