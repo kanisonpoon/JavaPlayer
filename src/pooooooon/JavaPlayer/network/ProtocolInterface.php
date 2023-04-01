@@ -35,10 +35,12 @@ use pocketmine\network\mcpe\convert\GlobalItemTypeDictionary;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializerContext;
+use pocketmine\network\mcpe\StandardEntityEventBroadcaster;
 use pocketmine\network\mcpe\StandardPacketBroadcaster;
 use pocketmine\network\NetworkInterface;
 use pocketmine\network\SourceInterface;
 use pocketmine\player\Player;
+use pocketmine\promise\PromiseResolver;
 use pocketmine\Server;
 use pocketmine\utils\MainLogger;
 use pooooooon\javaplayer\FakePacketSender;
@@ -296,26 +298,21 @@ class ProtocolInterface implements NetworkInterface
 
 				$compressor = ZlibCompressor::getInstance();
 				assert($compressor instanceof ZlibCompressor);
-
-				$session = new JavaPlayerNetworkSession(Server::getInstance(), Server::getInstance()->getNetwork()->getSessionManager(), PacketPool::getInstance(), new FakePacketSender(), new StandardPacketBroadcaster(Server::getInstance()), $compressor, $address, $port, $this->plugin);
+				$packetSerializerContext = new PacketSerializerContext(GlobalItemTypeDictionary::getInstance()->getDictionary());
+				$packetBroadcaster = new StandardPacketBroadcaster(Server::getInstance(), $packetSerializerContext);
+				$entityEventBroadcaster = new StandardEntityEventBroadcaster($packetBroadcaster);
+				$session = new JavaPlayerNetworkSession(Server::getInstance(), Server::getInstance()->getNetwork()->getSessionManager(), PacketPool::getInstance(), $packetSerializerContext, new FakePacketSender(), $packetBroadcaster, $entityEventBroadcaster, $compressor, $address, $port, new PromiseResolver(), $this->plugin);
 				Server::getInstance()->getNetwork()->getSessionManager()->add($session);
 				$this->sessions->attach($session, $id);
 				$this->sessionsPlayers[$id] = $session;
-
-				/*$player = new DesktopPlayer($this, $identifier, $address, $port, $this->plugin);
-				$this->sessions->attach($player, $id);
-				$this->sessionsPlayers[$id] = $player;
-				$this->plugin->getServer()->addPlayer($player);*/
-				//TODO
 			} elseif ($pid === InfoManager::PACKET_CLOSE_SESSION) {
 				$id = Binary::readInt(substr($buffer, $offset, 4));
 				if (!isset($this->sessionsPlayers[$id])) {
 					continue;
 				}
 				$player = $this->sessionsPlayers[$id];
-				$player->disconnect("");
-				Server::getInstance()->getNetwork()->getSessionManager()->remove($player);
 				$this->closeSession($id);
+				Server::getInstance()->getNetwork()->getSessionManager()->remove($player);
 			}
 		}
 	}
