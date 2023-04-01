@@ -16,12 +16,14 @@ use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\compression\Compressor;
 use pocketmine\network\mcpe\convert\TypeConverter;
+use pocketmine\network\mcpe\EntityEventBroadcaster;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\PacketBroadcaster;
 use pocketmine\network\mcpe\PacketSender;
 use pocketmine\network\mcpe\protocol\ClientboundPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
+use pocketmine\network\mcpe\protocol\serializer\PacketSerializerContext;
 use pocketmine\network\NetworkSessionManager;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\GameMode;
@@ -91,9 +93,34 @@ class JavaPlayerNetworkSession extends NetworkSession
 	public string $secret = '';
 	// private ?JavaInventoryManager $invManager = null;
 
-	public function __construct(Server $server, NetworkSessionManager $manager, PacketPool $packetPool, PacketSender $sender, PacketBroadcaster $broadcaster, Compressor $compressor, string $ip, int $port, Loader $loader)
-	{
-		parent::__construct($server, $manager, $packetPool, $sender, $broadcaster, $compressor, $ip, $port);
+	 /**
+     * @param Server $server
+     * @param NetworkSessionManager $manager
+     * @param PacketPool $packetPool
+     * @param PacketSerializerContext $packetSerializerContext
+     * @param PacketSender $sender
+     * @param PacketBroadcaster $broadcaster
+     * @param EntityEventBroadcaster $entityEventBroadcaster
+     * @param Compressor $compressor
+     * @param string $ip
+     * @param int $port
+     * @param PromiseResolver $player_add_resolver
+     */
+    public function __construct(
+        Server $server,
+        NetworkSessionManager $manager,
+        PacketPool $packetPool,
+        PacketSerializerContext $packetSerializerContext,
+        PacketSender $sender,
+        PacketBroadcaster $broadcaster,
+        EntityEventBroadcaster $entityEventBroadcaster,
+        Compressor $compressor,
+        string $ip,
+        int $port,
+        PromiseResolver $player_add_resolver,
+		Loader $loader
+    ){
+        parent::__construct($server, $manager, $packetPool, $packetSerializerContext, $sender, $broadcaster, $entityEventBroadcaster, $compressor, $ip, $port, $loader);
 		$this->playerResolver = new PromiseResolver;
 		$this->loader = $loader;
 		$this->bigBrother_breakPosition = [new Vector3(0, 0, 0), 0];
@@ -491,7 +518,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 
 			$pk = new LoginSuccessPacket();
 
-			$pk->uuid = $this->uuid;
+			$pk->uuid = $this->uuid->getBytes();
 			$pk->name = $this->username;
 
 			$this->putRawPacket($pk);
