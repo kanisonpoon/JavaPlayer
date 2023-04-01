@@ -93,7 +93,7 @@ class JavaPlayerNetworkSession extends NetworkSession
 	public string $secret = '';
 	// private ?JavaInventoryManager $invManager = null;
 
-	 /**
+    /**
      * @param Server $server
      * @param NetworkSessionManager $manager
      * @param PacketPool $packetPool
@@ -105,6 +105,7 @@ class JavaPlayerNetworkSession extends NetworkSession
      * @param string $ip
      * @param int $port
      * @param PromiseResolver $player_add_resolver
+     * @param Loader $loader
      */
     public function __construct(
         Server $server,
@@ -118,9 +119,9 @@ class JavaPlayerNetworkSession extends NetworkSession
         string $ip,
         int $port,
         PromiseResolver $player_add_resolver,
-		Loader $loader
+	Loader $loader
     ){
-        parent::__construct($server, $manager, $packetPool, $packetSerializerContext, $sender, $broadcaster, $entityEventBroadcaster, $compressor, $ip, $port, $loader);
+        parent::__construct($server, $manager, $packetPool, $packetSerializerContext, $sender, $broadcaster, $entityEventBroadcaster, $compressor, $ip, $port);
 		$this->playerResolver = new PromiseResolver;
 		$this->loader = $loader;
 		$this->bigBrother_breakPosition = [new Vector3(0, 0, 0), 0];
