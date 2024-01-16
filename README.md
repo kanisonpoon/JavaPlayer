@@ -1,9 +1,10 @@
 # JavaPlayer
 Allows the connection of Minecraft: JE clients to PocketMine servers. Made for PM4
 
+**Minecraft Java: 1.16.5**
+
 # NOTE:
 This plugin is not yet ready! Feel free to improve code and contribute!
-**Minecraft Java: 1.16.5**
 
 ## To be Implemented
 - [ ] NBT (can't write correctly)
