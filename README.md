@@ -2,6 +2,11 @@
 Allows the connection of Minecraft: JE clients to PocketMine servers. Made for PM4
 
 **Minecraft Java: 1.16.5**
+<div align="center">
+  <img src="https://img.shields.io/github/downloads/pooooooon/JavaPlayer/total?style=for-the-badge" alt="Downloads"/>
+  <img src="https://img.shields.io/github/issues/pooooooon/JavaPlayer?label=ISSUES%20OPEN&style=for-the-badge" alt="Issues Open"/>
+  <img src="https://img.shields.io/github/commit-activity/m/pooooooon/JavaPlayer?style=for-the-badge" alt="Commits Per Week"/>
+</div>
 
 # NOTE:
 This plugin is not yet ready! Feel free to improve code and contribute!
