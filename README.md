@@ -8,8 +8,9 @@ Allows the connection of Minecraft: JE clients to PocketMine servers. Made for P
   <img src="https://img.shields.io/github/commit-activity/m/pooooooon/JavaPlayer?style=for-the-badge" alt="Commits Per Week"/>
 </div>
 
-# NOTE:
-This plugin is not yet ready! Feel free to improve code and contribute!
+> [!NOTE]
+> This plugin is not yet ready!
+> Feel free to improve code and contribute!
 
 ## To be Implemented
 - [ ] NBT (can't write correctly)
